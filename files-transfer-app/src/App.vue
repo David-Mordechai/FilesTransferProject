@@ -1,7 +1,10 @@
 <template>
   <div class="container mt-2">
     <div class="mb-3">
-      <FilesPicker @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" />
+      <FilesPicker
+        @updateSelectedFileList="updateSelectedFileList"
+        @uploadFiles="uploadFiles"
+      />
       <div v-if="selectedFiles.length > 0">
         <FilesListTable :files="selectedFiles" />
         <ProgressBar :progressPercent="progressPercent" />
@@ -11,42 +14,43 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
 import FilesPicker from "./components/FilesPicker.vue";
 import FilesListTable from "./components/FilesListTable.vue";
+import { uploadFile } from "./services/fileUploaderService";
 
 export default {
-  name: 'App',
+  name: "App",
   components: { ProgressBar, FilesPicker, FilesListTable },
   setup() {
-    const selectedFiles = ref([])
-    const progressPercent = ref(0)
+    const selectedFiles = ref([]);
+    const progressPercent = ref(0);
 
     function updateSelectedFileList(files) {
-      selectedFiles.value = files
-      progressPercent.value = 0
+      selectedFiles.value = files;
+      progressPercent.value = 0;
     }
 
-    function uploadFiles() {
-      progressPercent.value = 0
-      let progressStep = 100 / selectedFiles.value.length
-      let files = selectedFiles.value
-      for(let i = 0; i< files.length; i++){
-        console.log('file uploading', files[i].path);
-        progressPercent.value += progressStep
+    async function uploadFiles() {
+      progressPercent.value = 0;
+      let progressStep = Math.round(100 / selectedFiles.value.length);
+      let files = selectedFiles.value;
+      for (let i = 0; i < files.length; i++) {
+        await uploadFile(files[i]);
+        progressPercent.value += progressStep;
       }
-      progressPercent.value = 100
+      progressPercent.value = 100;
     }
 
     return {
       selectedFiles,
       progressPercent,
       updateSelectedFileList,
-      uploadFiles
+      uploadFiles,
     };
   },
-}
+};
 </script>
 
 <style>

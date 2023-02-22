@@ -1,6 +1,6 @@
 <template>
     <table class="table">
-        <thead class="table-light">
+        <thead>
             <tr>
                 <th>File Name</th>
                 <th>Size</th>

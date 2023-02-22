@@ -1,5 +1,5 @@
 <template>
-    <div class="progress">
+    <div class="progress" v-if="percent > 0">
         <div class="progress-bar" role="progressbar" :style="'width: ' + percent + '%;'" :aria-valuenow="percent"
             aria-valuemin="0" aria-valuemax="100">
             {{ percent }}%
