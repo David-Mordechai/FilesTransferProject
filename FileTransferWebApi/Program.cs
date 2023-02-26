@@ -33,8 +33,7 @@ app.MapPost("/transferFile", async ([FromServices]ILogger<Program> logger, FileD
     logger.LogInformation("File: {FileName} Path: {FilePath}", fileDto.FileType, fileDto.FilePath);
     await Task.Delay(1000);
     return fileDto;
-})
-.WithName("GetWeatherForecast");
+});
 
 app.Run();
 
