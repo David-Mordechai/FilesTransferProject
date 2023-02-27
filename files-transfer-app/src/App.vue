@@ -1,4 +1,9 @@
 <template>
+  <div class="title-bar-buttons">
+      <button class="btn1">Minimize</button>
+      <button class="btn1">Maximize</button>
+      <button class="btn1">Close</button>
+    </div>
   <div class="container mt-2">
     <div class="mb-3">
       <FilesPicker
@@ -11,6 +16,7 @@
       </div>
     </div>
   </div>
+  <footer class="fixed-footer"></footer>
 </template>
 
 <script>
@@ -59,5 +65,36 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin-top: 60px;
+}
+/* .fixed-header,
+.fixed-footer {
+  width: 100%;
+  position: fixed;
+  background: #333;
+  padding: 0;
+  margin: 0;
+  color: #fff;
+}
+.fixed-header {
+  top: 0;
+}
+.fixed-footer {
+  bottom: 0;
+} */
+
+.title-bar-buttons {
+    -webkit-app-region: no-drag;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+}
+.btn1{
+  border: none;
+  background-color: transparent;
+  color: text;
+}
+.btn1:hover{
+  background-color: red;
+  color: whitesmoke;
 }
 </style>
