@@ -78,7 +78,7 @@ async function createWindow() {
           return {
             name: path.basename(file),
             size: stats.isFile() ? stats.size : null,
-            path: stats.path,
+            path: file,
           };
         } catch {
           return {
