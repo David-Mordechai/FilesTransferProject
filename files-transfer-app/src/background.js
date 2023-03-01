@@ -1,6 +1,6 @@
 'use strict'
 
-import electron , { app, protocol, BrowserWindow } from 'electron'
+import electron, { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -26,11 +26,38 @@ async function createWindow() {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
-  
+
   win.menuBarVisible = false
-  
+
   win.on('closed', () => {
+    ipc.removeAllListeners();
     win = null;
+  })
+
+  win.on('maximize', () => {
+    console.log('enter-full-screen');
+    win.webContents.send('full-screen', { 'isFullScreen': true })
+  })
+
+  win.on('unmaximize', () => {
+    console.log('leave-full-screen');
+    win.webContents.send('full-screen', { 'isFullScreen': false })
+  })
+
+  ipc.on('close', () => {
+    app.quit()
+  })
+
+  ipc.on('minimize', () => {
+    win.minimize()
+  })
+
+  ipc.on('maximize', () => {
+    win.maximize()
+  })
+
+  ipc.on('restore', () => {
+    win.restore()
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -43,10 +70,6 @@ async function createWindow() {
     win.loadURL('app://./index.html')
   }
 }
-
-ipc.on('close', () => {
-  app.quit()
-})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

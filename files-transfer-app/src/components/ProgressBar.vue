@@ -24,4 +24,11 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.progress{
+    border-radius: 0;
+}
+ .progress-bar{
+    background-color: rgba(0, 128, 0, 0.705);
+ }
+</style>
