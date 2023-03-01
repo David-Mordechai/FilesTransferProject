@@ -1,8 +1,11 @@
 'use strict'
 
-import electron, { app, protocol, BrowserWindow } from 'electron'
+import electron, { app, protocol, BrowserWindow, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import fs from "fs";
+var path = require('path');
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const ipc = electron.ipcMain
 
@@ -60,6 +63,32 @@ async function createWindow() {
 
   ipc.on('restore', () => {
     win.restore()
+  })
+
+  ipc.on('choose-files', (event) => {
+    const files = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'], filters:[{'name':'csv files', extensions: ['json']}], modal: true })
+    if (!files) {
+      event.returnValue = []
+      return
+    }
+    event.returnValue = files
+      .map((file) => {
+        try {
+          const stats = fs.statSync(file);
+          return {
+            name: path.basename(file),
+            size: stats.isFile() ? stats.size : null,
+            path: stats.path,
+          };
+        } catch {
+          return {
+            name: '',
+            size: null,
+            path: '',
+          };
+        }
+      })
+      .filter(file => file.size !== null)
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

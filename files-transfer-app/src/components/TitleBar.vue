@@ -32,7 +32,7 @@
             <button @click="restore" v-if="isFullScreen" class="btnScaleDown" tabindex="-1">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                     <path
-                        d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                        d="M3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm18-4H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14z" />
                 </svg>
             </button>
             <button @click="close" class="btnClose" tabindex="-1">
@@ -75,7 +75,6 @@ export default {
         }
 
         ipc.on('full-screen', (_, args) => {
-            console.log(args);
             isFullScreen.value = args.isFullScreen
         })
 
@@ -148,7 +147,7 @@ export default {
 
 .btnMin>svg,
 .btnMax>svg,
-.btnScaleDownsvg>svg {
+.btnScaleDown>svg {
     width: 60%;
     height: 55%;
 }
@@ -158,23 +157,10 @@ export default {
     height: 60%;
 }
 
-@media (prefers-color-scheme: dark) {
-
-    .btnMin>svg,
-    .btnMax>svg,
-    .btnScaleDown>svg,
-    .btnClose>svg {
-        fill: #fff;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-
-    .btnMin>svg,
-    .btnMax>svg,
-    .btnScaleDown>svg,
-    .btnClose>svg {
-        fill: #000000ab;
-    }
+.btnMin>svg,
+.btnMax>svg,
+.btnScaleDown>svg,
+.btnClose>svg {
+    fill: #fff;
 }
 </style>

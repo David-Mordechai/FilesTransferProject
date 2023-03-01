@@ -26,9 +26,10 @@ export default {
 
 <style scoped>
 .progress{
-    border-radius: 0;
+    border-radius: 2px;
 }
  .progress-bar{
     background-color: rgba(0, 128, 0, 0.705);
+    border-radius: 2px;
  }
 </style>
