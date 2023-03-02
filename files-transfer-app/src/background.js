@@ -40,12 +40,10 @@ async function createWindow() {
   })
 
   win.on('maximize', () => {
-    console.log('enter-full-screen');
     win.webContents.send('full-screen', { 'isFullScreen': true })
   })
 
   win.on('unmaximize', () => {
-    console.log('leave-full-screen');
     win.webContents.send('full-screen', { 'isFullScreen': false })
   })
 

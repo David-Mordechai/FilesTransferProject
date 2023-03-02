@@ -4,15 +4,23 @@
             <tr>
                 <th>File Name</th>
                 <th>Size</th>
+                <th>Uploaded</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(file, index) in filesList" :key="index">
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
+                <td>{{ file.uploaded }}</td>
             </tr>
         </tbody>
     </table>
+    <div class="file-card" v-for="(file, index) in filesList" :key="index">
+        <section class="file-name">{{ file.name }} ({{ formatSize(file.size) }})</section>
+        <section class="file-size">{{ formatSize(file.size) }}</section>
+        <section class="file-uploaded">{{ file.uploaded }}</section>
+        <section class="file-deleted">{{ file.deleted }}</section>
+    </div>
 </template>
 
 <script>
@@ -42,4 +50,26 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.file-card{
+    display: grid;
+    margin: 10px 0;
+    width: 100%;
+    grid-template-areas:
+    "name size"
+    "uploaded deleted";
+    /* background-color: antiquewhite; */
+}
+.file-name{
+    grid-area: name;
+}
+.file-size{
+    grid-area: size;
+}
+.file-uploaded{
+    grid-area: uploaded;
+}
+.file-deleted{
+    grid-area: deleted;
+}
+</style>

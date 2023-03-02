@@ -1,14 +1,21 @@
 import axios from "axios";
 
+const successResponse = { 'success': true }
+const errorResponse = { 'success': false, 'error': 'Upload fail'}
+
 export const uploadFile = async (file) => {
     try {
-        const data = {
+        const response = await axios.post('https://localhost:7180/transferFile', {
             "fileType": `${file.name}`,
             "filePath": `${file.path}`
-        }
-        const response = await axios.post('https://localhost:7180/transferFile', data)
-        console.log(response.data);
+        })
+        
+        if(response.status === 200)
+            return successResponse
+        
+        return errorResponse
+
     } catch (error) {
-        console.error('Fail to upload file', error);
+        return errorResponse
     }
 }

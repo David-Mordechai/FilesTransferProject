@@ -5,7 +5,10 @@
 
   <div id="mainWrapper">
     <div id="sideBar">
-      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" />
+      <SideBar
+        @updateSelectedFileList="updateSelectedFileList"
+        @uploadFiles="uploadFiles"
+      />
     </div>
     <div id="main">
       <FilesListTable v-if="selectedFiles.length > 0" :files="selectedFiles" />
@@ -15,7 +18,10 @@
   <footer id="footer">
     <div class="status-bar">
       <div class="status-summary">{{ statusSummary }}</div>
-      <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
+      <ProgressBar
+        class="status-progressBar"
+        :progressPercent="progressPercent"
+      />
     </div>
   </footer>
 </template>
@@ -48,7 +54,10 @@ export default {
       let progressStep = Math.round(100 / selectedFiles.value.length) - 1;
       for (let i = 0; i < selectedFiles.value.length; i++) {
         statusSummary.value = `Uploaded file: ${selectedFiles.value[i].name}`;
-        await uploadFile(selectedFiles.value[i]);
+        let result = await uploadFile(selectedFiles.value[i]);
+
+        selectedFiles.value[i].uploaded = result.success ? "True" : "False"
+
         progressPercent.value += progressStep;
       }
       progressPercent.value = 100;
@@ -67,6 +76,12 @@ export default {
 </script>
 
 <style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #mainWrapper {
   display: grid;
   grid-template-areas:
@@ -76,6 +91,12 @@ export default {
   grid-template-columns: 150px 1fr;
 }
 
+#sideBar {
+  grid-area: side-bar;
+  width: 150px;
+  background-color: #1c1c1cc0;
+}
+
 #main {
   grid-area: main-side;
   padding: 10px;
@@ -83,29 +104,10 @@ export default {
   height: calc(100vh - 72px);
 }
 
-#sideBar {
-  grid-area: side-bar;
-  width: 150px;
-  background-color: #1c1c1cc0;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 header,
 footer {
   background-color: #1c1c1cd9;
   color: whitesmoke;
-}
-
-header {
-  width: 100%;
-}
-
-footer {
   width: 100%;
   height: 36px;
 }
