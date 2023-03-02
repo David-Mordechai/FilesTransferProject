@@ -2,18 +2,18 @@
     <table class="table table-sm">
         <thead>
             <tr>
-                <th>File Name</th>
-                <th style="width: 100px;">Size</th>
-                <th style="width: 100px;">Uploaded</th>
-                <th style="width: 100px;">Deleted</th>
+                <th class="th-name">File Name</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Deleted</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(file, index) in filesList" :key="index">
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
-                <td :class="file.uploaded === 'Yes' ? 'success' : 'failure'">{{ file.uploaded }}</td>
-                <td :class="file.deleted === 'Yes' ? 'success' : 'failure'">{{ file.deleted }}</td>
+                <td :class="file.uploaded === 'No' ? 'failure' : file.uploaded === 'Yes' ? 'success' : 'regular'">{{ file.uploaded }}</td>
+                <td :class="file.deleted === 'No' ? 'failure' : file.deleted === 'Yes' ? 'success' : 'regular'">{{ file.deleted }}</td>
             </tr>
         </tbody>
     </table>
@@ -52,13 +52,24 @@ table {
     font-size: large;
 }
 
+th{
+    width: 100px;
+}
+.th-name{
+    width: auto;
+}
+
+.regular{
+    color: inherit;
+}
+
 .success {
     color: green;
-    transition: color 2s;
+    transition: color 1s;
 }
 
 .failure {
     color: red;
-    transition: color 2s;
+    transition: color 1s;
 }
 </style>
