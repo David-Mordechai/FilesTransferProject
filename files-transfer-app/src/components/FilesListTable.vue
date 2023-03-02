@@ -1,26 +1,22 @@
 <template>
-    <table class="table">
+    <table class="table table-sm">
         <thead>
             <tr>
                 <th>File Name</th>
-                <th>Size</th>
-                <th>Uploaded</th>
+                <th style="width: 100px;">Size</th>
+                <th style="width: 100px;">Uploaded</th>
+                <th style="width: 100px;">Deleted</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(file, index) in filesList" :key="index">
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
-                <td>{{ file.uploaded }}</td>
+                <td :class="file.uploaded === 'Yes' ? 'success' : 'failure'">{{ file.uploaded }}</td>
+                <td :class="file.deleted === 'Yes' ? 'success' : 'failure'">{{ file.deleted }}</td>
             </tr>
         </tbody>
     </table>
-    <div class="file-card" v-for="(file, index) in filesList" :key="index">
-        <section class="file-name">{{ file.name }} ({{ formatSize(file.size) }})</section>
-        <section class="file-size">{{ formatSize(file.size) }}</section>
-        <section class="file-uploaded">{{ file.uploaded }}</section>
-        <section class="file-deleted">{{ file.deleted }}</section>
-    </div>
 </template>
 
 <script>
@@ -51,25 +47,18 @@ export default {
 </script>
 
 <style scoped>
-.file-card{
-    display: grid;
-    margin: 10px 0;
-    width: 100%;
-    grid-template-areas:
-    "name size"
-    "uploaded deleted";
-    /* background-color: antiquewhite; */
+table {
+    color: #1c1c1cd9;
+    font-size: large;
 }
-.file-name{
-    grid-area: name;
+
+.success {
+    color: green;
+    transition: color 2s;
 }
-.file-size{
-    grid-area: size;
-}
-.file-uploaded{
-    grid-area: uploaded;
-}
-.file-deleted{
-    grid-area: deleted;
+
+.failure {
+    color: red;
+    transition: color 2s;
 }
 </style>

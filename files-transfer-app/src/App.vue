@@ -11,6 +11,7 @@
       />
     </div>
     <div id="main">
+      <div class="center" v-if="selectedFiles.length === 0">Choose files to upload...</div>
       <FilesListTable v-if="selectedFiles.length > 0" :files="selectedFiles" />
     </div>
   </div>
@@ -56,7 +57,8 @@ export default {
         statusSummary.value = `Uploaded file: ${selectedFiles.value[i].name}`;
         let result = await uploadFile(selectedFiles.value[i]);
 
-        selectedFiles.value[i].uploaded = result.success ? "True" : "False"
+        selectedFiles.value[i].uploaded = result.success ? "Yes" : "No"
+        selectedFiles.value[i].deleted = result.success ? "No" : "No"
 
         progressPercent.value += progressStep;
       }
@@ -102,6 +104,15 @@ export default {
   padding: 10px;
   width: 100%;
   height: calc(100vh - 72px);
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: xx-large;
+  color: darkgray;
 }
 
 header,
