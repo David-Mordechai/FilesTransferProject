@@ -64,7 +64,14 @@ async function createWindow() {
   })
 
   ipc.on('choose-files', (event) => {
-    const files = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'], filters:[{'name':'csv files', extensions: ['json']}], modal: true })
+    const files = dialog.showOpenDialogSync({ 
+      properties: ['openFile', 'multiSelections'], 
+      filters: [
+        { 
+          'name': 'csv files', 
+          extensions: ['json'] 
+        }]
+      })
     if (!files) {
       event.returnValue = []
       return
@@ -92,9 +99,9 @@ async function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    
+
     // if (!process.env.IS_TEST) win.webContents.openDevTools()
-  
+
   } else {
     createProtocol('app')
     // Load the index.html when not in development

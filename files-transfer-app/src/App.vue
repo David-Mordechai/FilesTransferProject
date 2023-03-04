@@ -78,6 +78,10 @@ export default {
 </script>
 
 <style>
+body{
+  overflow: hidden;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -104,6 +108,7 @@ export default {
   padding: 10px;
   width: 100%;
   height: calc(100vh - 72px);
+  overflow-y: auto;
 }
 
 .center {

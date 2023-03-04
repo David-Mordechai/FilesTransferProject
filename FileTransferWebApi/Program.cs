@@ -31,7 +31,7 @@ app.UseHttpsRedirection();
 app.MapPost("/transferFile", async ([FromServices]ILogger<Program> logger, FileDto fileDto) =>
 {
     logger.LogInformation("File: {FileName} Path: {FilePath}", fileDto.FileType, fileDto.FilePath);
-    await Task.Delay(200);
+    await Task.Delay(1000);
     return fileDto;
 });
 

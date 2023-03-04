@@ -30,8 +30,8 @@ export default {
           name: file.name,
           size: file.size,
           path: file.path,
-          uploaded: '',
-          deleted: '',
+          uploaded: 'Pending',
+          deleted: 'Pending',
         };
       });
       context.emit("updateSelectedFileList", this.files);
