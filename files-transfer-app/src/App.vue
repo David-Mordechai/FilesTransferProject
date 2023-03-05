@@ -13,6 +13,7 @@
     <div id="main">
       <div class="center" v-if="selectedFiles.length === 0">Choose files to upload...</div>
       <FilesListTable v-if="selectedFiles.length > 0" :files="selectedFiles" />
+        <button @click="removeFile">Remove</button>
     </div>
   </div>
 
@@ -66,12 +67,17 @@ export default {
       statusSummary.value = "Files uploaded successfully.";
     }
 
+    function removeFile() {
+      selectedFiles.value = []
+    }
+
     return {
       selectedFiles,
       progressPercent,
       updateSelectedFileList,
       uploadFiles,
       statusSummary,
+      removeFile
     };
   },
 };
