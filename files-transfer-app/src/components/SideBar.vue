@@ -1,19 +1,20 @@
 <template>
   <button class="btnSideBar btn btn-primary" 
   @click="selectFiles"
-  :disabled="uploadStatus === 'inProgress' || uploadStatus === 'completed'">Choose Files</button>
+  :disabled="selectFilesButtonDisabled">Choose Files</button>
   
   <button class="btnSideBar btn btn-success" 
   @click="uploadFiles" 
-  :disabled="uploadStatus !== 'ready'">Upload</button>
+  :disabled="uploadFilesButtonDisabled">Upload</button>
   
   <button class="btnSideBar btn btn-primary" 
   @click="clearAll" 
-  :disabled="uploadStatus === 'inProgress' || uploadStatus === 'none'">Clear All</button>
+  :disabled="clearAllButtonDisabled">Clear All</button>
 </template>
 
 <script>
 import { computed } from "vue";
+import { uploadState } from '../services/enums';
 const electron = require("electron");
 
 const ipc = electron.ipcRenderer;
@@ -24,7 +25,18 @@ export default {
   setup(props, context) {
     
     const files = computed(() => {return props.selectedFiles});
-    const uploadStatus = computed(() => {return props.uploadStat});
+    
+    const selectFilesButtonDisabled = computed(() => {
+      return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.COMPLETED;
+    });
+
+    const uploadFilesButtonDisabled = computed(() => {
+      return props.uploadStat !== uploadState.READY;
+    });
+    
+    const clearAllButtonDisabled = computed(() => {
+      return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.NONE;
+    });
 
     function selectFiles() {
       let newFiles = ipc.sendSync("choose-files");
@@ -41,7 +53,9 @@ export default {
 
     return {
       files,
-      uploadStatus,
+      selectFilesButtonDisabled,
+      uploadFilesButtonDisabled,
+      clearAllButtonDisabled,
       selectFiles,
       uploadFiles,
       clearAll,

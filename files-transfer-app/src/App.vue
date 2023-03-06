@@ -5,34 +5,22 @@
 
   <div id="mainWrapper">
     <div id="sideBar">
-      <SideBar
-        @updateSelectedFileList="updateSelectedFileList"
-        @uploadFiles="uploadFiles"
-        @clearAll="clearAll"
-        :selectedFiles="selectedFiles"
-        :uploadStat="uploadStatus"
-      />
+      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @clearAll="clearAll"
+        :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
     <div id="main">
       <div class="center" v-if="selectedFiles.length === 0">
         Choose files to upload...
       </div>
-      <FilesListTable
-        v-if="selectedFiles.length > 0"
-        :selectedFiles="selectedFiles"
-        :uploadStat="uploadStatus"
-        @removeFile="removeFile"
-      />
+      <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
+        @removeFile="removeFile" />
     </div>
   </div>
 
   <footer id="footer">
     <div class="status-bar">
       <div class="status-summary">{{ statusSummary }}</div>
-      <ProgressBar
-        class="status-progressBar"
-        :progressPercent="progressPercent"
-      />
+      <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
     </div>
   </footer>
 </template>
@@ -44,25 +32,31 @@ import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import { uploadFile } from "./services/fileUploaderService";
+import { uploadState } from "./services/enums";
 const { unionBy } = require("lodash");
 
 export default {
   name: "App",
   components: { ProgressBar, SideBar, FilesListTable, TitleBar },
   setup() {
-    const selectedFiles = ref([]);
     const progressPercent = ref(0);
     const statusSummary = ref("");
-    const uploadStatus = ref("none");
+    const selectedFiles = ref([]);
+    const uploadStatus = ref(uploadState.NONE);
+
+    function clearAll() {
+      progressPercent.value = 0;
+      statusSummary.value = "";
+      selectedFiles.value = [];
+      uploadStatus.value = uploadState.NONE;
+    }
 
     watch(selectedFiles, async (newValue) => {
-      console.log(newValue);
-      console.log(uploadStatus.value);
-      if(newValue.length > 0){
-        uploadStatus.value = 'ready'
+      if (newValue.length > 0) {
+        uploadStatus.value = uploadState.READY
       }
-      else{
-        uploadStatus.value = 'none'
+      else {
+        uploadStatus.value = uploadState.NONE
       }
     });
 
@@ -100,15 +94,8 @@ export default {
       );
     }
 
-    function clearAll() {
-      progressPercent.value = 0;
-      statusSummary.value = "";
-      selectedFiles.value = [];
-      uploadStatus.value = "none";
-    }
-
     async function uploadFiles() {
-      uploadStatus.value = "inProgress";
+      uploadStatus.value = uploadState.IN_PROGRESS;
       progressPercent.value = 1;
       statusSummary.value = "";
       let progressStep = Math.round(100 / selectedFiles.value.length) - 1;
@@ -123,7 +110,7 @@ export default {
       }
       progressPercent.value = 100;
       statusSummary.value = "Files uploaded successfully.";
-      uploadStatus.value = "completed";
+      uploadStatus.value = uploadState.COMPLETED;
     }
 
     return {

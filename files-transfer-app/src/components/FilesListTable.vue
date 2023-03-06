@@ -2,7 +2,7 @@
     <table class="table table-sm">
         <thead>
             <tr>
-                <th class="th-remove" v-if="uploadStatus === 'ready'"> </th>
+                <th class="th-remove" v-if="showDeleteFileColumn"> </th>
                 <th class="th-name">File Name</th>
                 <th>Size</th>
                 <th>Uploaded</th>
@@ -10,8 +10,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="file in filesList" :key="file.path">
-                <td @click="remove(file.path)" class="removeBtn" v-if="uploadStatus === 'ready'">
+            <tr v-for="file in files" :key="file.path">
+                <td @click="remove(file.path)" class="removeBtn" v-if="showDeleteFileColumn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                         <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
@@ -28,13 +28,18 @@
 
 <script>
 import { computed } from 'vue'
+import { uploadState } from '../services/enums'
 export default {
     name: 'files-list-table',
     props: ['selectedFiles', "uploadStat"],
     emits: ['removeFile'],
     setup(props, context) {
-        const filesList = computed(() => {return props.selectedFiles});
-        const uploadStatus = computed(() => {return props.uploadStat});
+
+        const files = computed(() => {return props.selectedFiles});
+        
+        const showDeleteFileColumn = computed(() => {
+            return props.uploadStat === uploadState.READY;
+        });
 
         function formatSize(size) {
             var i = Math.floor(Math.log(size) / Math.log(1024));
@@ -50,8 +55,8 @@ export default {
         }
 
         return {
-            filesList,
-            uploadStatus,
+            files,
+            showDeleteFileColumn,
             formatSize,
             remove,
         };
