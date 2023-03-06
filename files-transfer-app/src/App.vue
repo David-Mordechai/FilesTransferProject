@@ -12,8 +12,9 @@
     </div>
     <div id="main">
       <div class="center" v-if="selectedFiles.length === 0">Choose files to upload...</div>
-      <FilesListTable v-if="selectedFiles.length > 0" :files="selectedFiles" />
-        <button @click="removeFile">Remove</button>
+      <FilesListTable v-if="selectedFiles.length > 0" 
+        :selectedFiles="selectedFiles" 
+        @removeFile="removeFile"/>
     </div>
   </div>
 
@@ -35,6 +36,7 @@ import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import { uploadFile } from "./services/fileUploaderService";
+const { unionBy } = require('lodash');
 
 export default {
   name: "App",
@@ -45,9 +47,39 @@ export default {
     const statusSummary = ref("");
 
     function updateSelectedFileList(files) {
-      selectedFiles.value = files;
       progressPercent.value = 0;
       statusSummary.value = "";
+      if(files === [])
+        selectedFiles.value = []
+
+      let newFiles = files.map((file) => {
+        return {
+          name: file.name,
+          size: file.size,
+          path: file.path,
+          uploaded: 'Pending',
+          deleted: 'Pending',
+        };
+      });
+
+      selectedFiles.value = unionBy(newFiles, selectedFiles.value, 'path')
+        .sort(function (a, b) {
+          const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+          const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+          // sort in an ascending order
+          if (nameA < nameB) {
+            return -1;
+          }
+          if (nameA > nameB) {
+            return 1;
+          }
+          // names must be equal
+          return 0;
+        });
+    }
+
+    function removeFile(filePath) {
+      selectedFiles.value = selectedFiles.value.filter(file => file.path !== filePath)
     }
 
     async function uploadFiles() {
@@ -65,10 +97,6 @@ export default {
       }
       progressPercent.value = 100;
       statusSummary.value = "Files uploaded successfully.";
-    }
-
-    function removeFile() {
-      selectedFiles.value = []
     }
 
     return {
