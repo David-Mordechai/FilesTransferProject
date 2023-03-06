@@ -49,8 +49,11 @@ export default {
     function updateSelectedFileList(files) {
       progressPercent.value = 0;
       statusSummary.value = "";
-      if(files === [])
+      
+      if(files.length === 0){
         selectedFiles.value = []
+        return
+      }
 
       let newFiles = files.map((file) => {
         return {
