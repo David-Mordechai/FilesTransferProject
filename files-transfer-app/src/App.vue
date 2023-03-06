@@ -7,14 +7,22 @@
     <div id="sideBar">
       <SideBar
         @updateSelectedFileList="updateSelectedFileList"
-        @uploadFiles="uploadFiles" :selectedFiles="selectedFiles"
+        @uploadFiles="uploadFiles"
+        @clearAll="clearAll"
+        :selectedFiles="selectedFiles"
+        :uploadStat="uploadStatus"
       />
     </div>
     <div id="main">
-      <div class="center" v-if="selectedFiles.length === 0">Choose files to upload...</div>
-      <FilesListTable v-if="selectedFiles.length > 0" 
-        :selectedFiles="selectedFiles" 
-        @removeFile="removeFile"/>
+      <div class="center" v-if="selectedFiles.length === 0">
+        Choose files to upload...
+      </div>
+      <FilesListTable
+        v-if="selectedFiles.length > 0"
+        :selectedFiles="selectedFiles"
+        :uploadStat="uploadStatus"
+        @removeFile="removeFile"
+      />
     </div>
   </div>
 
@@ -30,13 +38,13 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
 import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import { uploadFile } from "./services/fileUploaderService";
-const { unionBy } = require('lodash');
+const { unionBy } = require("lodash");
 
 export default {
   name: "App",
@@ -45,28 +53,32 @@ export default {
     const selectedFiles = ref([]);
     const progressPercent = ref(0);
     const statusSummary = ref("");
+    const uploadStatus = ref("none");
+
+    watch(selectedFiles, async (newValue) => {
+      console.log(newValue);
+      console.log(uploadStatus.value);
+      if(newValue.length > 0){
+        uploadStatus.value = 'ready'
+      }
+      else{
+        uploadStatus.value = 'none'
+      }
+    });
 
     function updateSelectedFileList(files) {
-      progressPercent.value = 0;
-      statusSummary.value = "";
-      
-      if(files.length === 0){
-        selectedFiles.value = []
-        return
-      }
-
       let newFiles = files.map((file) => {
         return {
           name: file.name,
           size: file.size,
           path: file.path,
-          uploaded: 'Pending',
-          deleted: 'Pending',
+          uploaded: "Pending",
+          deleted: "Pending",
         };
       });
 
-      selectedFiles.value = unionBy(newFiles, selectedFiles.value, 'path')
-        .sort(function (a, b) {
+      selectedFiles.value = unionBy(newFiles, selectedFiles.value, "path").sort(
+        function (a, b) {
           const nameA = a.name.toUpperCase(); // ignore upper and lowercase
           const nameB = b.name.toUpperCase(); // ignore upper and lowercase
           // sort in an ascending order
@@ -78,14 +90,25 @@ export default {
           }
           // names must be equal
           return 0;
-        });
+        }
+      );
     }
 
     function removeFile(filePath) {
-      selectedFiles.value = selectedFiles.value.filter(file => file.path !== filePath)
+      selectedFiles.value = selectedFiles.value.filter(
+        (file) => file.path !== filePath
+      );
+    }
+
+    function clearAll() {
+      progressPercent.value = 0;
+      statusSummary.value = "";
+      selectedFiles.value = [];
+      uploadStatus.value = "none";
     }
 
     async function uploadFiles() {
+      uploadStatus.value = "inProgress";
       progressPercent.value = 1;
       statusSummary.value = "";
       let progressStep = Math.round(100 / selectedFiles.value.length) - 1;
@@ -93,29 +116,32 @@ export default {
         statusSummary.value = `Uploaded file: ${selectedFiles.value[i].name}`;
         let result = await uploadFile(selectedFiles.value[i]);
 
-        selectedFiles.value[i].uploaded = result.success ? "Yes" : "No"
-        selectedFiles.value[i].deleted = result.success ? "No" : "No"
+        selectedFiles.value[i].uploaded = result.success ? "Yes" : "No";
+        selectedFiles.value[i].deleted = result.success ? "No" : "No";
 
         progressPercent.value += progressStep;
       }
       progressPercent.value = 100;
       statusSummary.value = "Files uploaded successfully.";
+      uploadStatus.value = "completed";
     }
 
     return {
       selectedFiles,
       progressPercent,
+      statusSummary,
+      uploadStatus,
       updateSelectedFileList,
       uploadFiles,
-      statusSummary,
-      removeFile
+      removeFile,
+      clearAll,
     };
   },
 };
 </script>
 
 <style>
-body{
+body {
   overflow: hidden;
 }
 
