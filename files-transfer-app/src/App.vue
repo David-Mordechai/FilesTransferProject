@@ -7,7 +7,7 @@
     <div id="sideBar">
       <SideBar
         @updateSelectedFileList="updateSelectedFileList"
-        @uploadFiles="uploadFiles"
+        @uploadFiles="uploadFiles" :selectedFiles="selectedFiles"
       />
     </div>
     <div id="main">
