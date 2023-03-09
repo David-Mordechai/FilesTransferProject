@@ -19,8 +19,8 @@
                 </td>
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
-                <td :class="file.uploaded === 'No' ? 'failure' : file.uploaded === 'Yes' ? 'success' : 'regular'">{{ file.uploaded }}</td>
-                <td :class="file.deleted === 'No' ? 'failure' : file.deleted === 'Yes' ? 'success' : 'regular'">{{ file.deleted }}</td>
+                <td :class="statusClass(file.uploaded)">{{ file.uploaded }}</td>
+                <td :class="statusClass(file.deleted)">{{ file.deleted }}</td>
             </tr>
         </tbody>
     </table>
@@ -28,7 +28,7 @@
 
 <script>
 import { computed } from 'vue'
-import { uploadState } from '../services/enums'
+import { uploadState, actionStatus } from '../services/enums'
 export default {
     name: 'files-list-table',
     props: ['selectedFiles', "uploadStat"],
@@ -50,6 +50,17 @@ export default {
             );
         }
 
+        function statusClass(status) {
+            switch (status) {
+                case actionStatus.SUCCESS:
+                    return 'success';
+                case actionStatus.FAILURE:
+                    return 'success'
+                default:
+                    return 'regular'
+            }
+        }
+
         function remove(path) {
             context.emit('removeFile', path)
         }
@@ -59,6 +70,7 @@ export default {
             showDeleteFileColumn,
             formatSize,
             remove,
+            statusClass,
         };
     },
 }

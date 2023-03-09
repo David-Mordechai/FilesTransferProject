@@ -31,14 +31,26 @@ import ProgressBar from "./components/ProgressBar.vue";
 import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
+// import { uploadFile, copyFileToLocalFolder, deleteFileFromSourceFolder } from "./services/fileUploaderService";
 import { uploadFile } from "./services/fileUploaderService";
-import { uploadState } from "./services/enums";
+import { uploadState, actionStatus } from "./services/enums";
 const { unionBy } = require("lodash");
 
 export default {
   name: "App",
   components: { ProgressBar, SideBar, FilesListTable, TitleBar },
   setup() {
+
+    const config = ref({})
+
+    const fetchData = async () => {
+      const resp = await fetch('./assets/config.json')
+      config.value = await resp.json()
+      console.log(config.value.localRootFolder);
+    }
+
+    fetchData();
+    
     const progressPercent = ref(0);
     const statusSummary = ref("");
     const selectedFiles = ref([]);
@@ -66,8 +78,8 @@ export default {
           name: file.name,
           size: file.size,
           path: file.path,
-          uploaded: "Pending",
-          deleted: "Pending",
+          uploaded: actionStatus.PENDING,
+          deleted: actionStatus.PENDING,
         };
       });
 
@@ -101,10 +113,13 @@ export default {
       let progressStep = Math.round(100 / selectedFiles.value.length) - 1;
       for (let i = 0; i < selectedFiles.value.length; i++) {
         statusSummary.value = `Uploaded file: ${selectedFiles.value[i].name}`;
+        
         let result = await uploadFile(selectedFiles.value[i]);
+        // let localFilePath = copyFileToLocalFolder(selectedFiles.value[i])
+        // deleteFileFromSourceFolder(selectedFiles.value[i])
 
-        selectedFiles.value[i].uploaded = result.success ? "Yes" : "No";
-        selectedFiles.value[i].deleted = result.success ? "No" : "No";
+        selectedFiles.value[i].uploaded = result.success ? actionStatus.SUCCESS : actionStatus.FAILURE;
+        selectedFiles.value[i].deleted = result.success ? actionStatus.SUCCESS : actionStatus.FAILURE;
 
         progressPercent.value += progressStep;
       }

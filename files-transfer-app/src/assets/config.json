@@ -1,0 +1,12 @@
+{
+    "localRootFolder": "C:\\Temp\\TestFilesTransfer\\",
+    "platforms": {
+        "ORB2": "Orbiter 2",   
+        "ORB3": "Orbiter 3",   
+        "ORB4": "Orbiter 4",   
+        "ORB4-2": "Orbiter 4-2",   
+        "ORB6": "Orbiter 6",  
+        "DOMMK3": "Dominator MK3",
+        "AEROSTARTBP": "Aerostar BP"
+    }
+}
