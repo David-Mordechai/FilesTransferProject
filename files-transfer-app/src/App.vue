@@ -9,9 +9,11 @@
         :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
     <div id="main">
+      <PlatformInfo :platforms="platforms"/>
       <div class="center" v-if="selectedFiles.length === 0">
         Choose files to upload...
       </div>
+      
       <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
         @removeFile="removeFile" />
     </div>
@@ -31,6 +33,8 @@ import ProgressBar from "./components/ProgressBar.vue";
 import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
+import PlatformInfo from "./components/PlatformInfo.vue";
+
 // import { uploadFile, copyFileToLocalFolder, deleteFileFromSourceFolder } from "./services/fileUploaderService";
 import { uploadFile } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
@@ -40,14 +44,14 @@ const ipc = electron.ipcRenderer
 
 export default {
   name: "App",
-  components: { ProgressBar, SideBar, FilesListTable, TitleBar },
+  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo },
   setup() {
 
     const config = ref({})
 
     config.value = ipc.sendSync('getConfig')
-    console.log(config.value);
     
+    const platforms = ref(config.value.platforms)
     const progressPercent = ref(0);
     const statusSummary = ref("");
     const selectedFiles = ref([]);
@@ -130,6 +134,7 @@ export default {
       progressPercent,
       statusSummary,
       uploadStatus,
+      platforms,
       updateSelectedFileList,
       uploadFiles,
       removeFile,
@@ -177,7 +182,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  height: 80%;
   font-size: xx-large;
   color: darkgray;
 }
