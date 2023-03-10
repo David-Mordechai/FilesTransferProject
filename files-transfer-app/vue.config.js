@@ -3,8 +3,11 @@ module.exports = defineConfig({
   transpileDependencies: true,
   pluginOptions: {
     electronBuilder: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+      builderOptions: {
+        extraResources: ['public/config.json']
+      }
+    },
   },
   configureWebpack: {
     devtool: 'source-map'

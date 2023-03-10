@@ -35,6 +35,8 @@ import TitleBar from "./components/TitleBar.vue";
 import { uploadFile } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 const { unionBy } = require("lodash");
+const electron = require('electron')
+const ipc = electron.ipcRenderer
 
 export default {
   name: "App",
@@ -43,13 +45,8 @@ export default {
 
     const config = ref({})
 
-    const fetchData = async () => {
-      const resp = await fetch('./assets/config.json')
-      config.value = await resp.json()
-      console.log(config.value.localRootFolder);
-    }
-
-    fetchData();
+    config.value = ipc.sendSync('getConfig')
+    console.log(config.value);
     
     const progressPercent = ref(0);
     const statusSummary = ref("");

@@ -96,6 +96,13 @@ async function createWindow() {
       .filter(file => file.size !== null)
   })
 
+  ipc.on('getConfig', (event) => {
+    let configFilePath =  path.join(
+      isDevelopment ? __dirname : __static, '../public/config.json') 
+    var configFile = JSON.parse(fs.readFileSync(configFilePath));
+    event.returnValue = configFile
+  });
+
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
