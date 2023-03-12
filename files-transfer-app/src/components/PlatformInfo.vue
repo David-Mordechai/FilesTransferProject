@@ -26,12 +26,15 @@
 <script>
 import { ref, computed, watch } from 'vue'
 export default {
-    name: 'input-form',
+    name: 'platform-info',
     props: ['platforms'],
-    setup(props) {
+    emits: ['updatePlatformInfo'],
+    expose: ['reset'],
+    setup(props, context) {
         const platformsList = ref(props.platforms);
         const tailNumber = ref()
         const seletedPlatform = ref('')
+
         let isValid = ref(false)
         isValid = computed(() => {
             const validTailNumber = tailNumber.value && tailNumber.value > 99 && tailNumber.value < 10000;
@@ -41,18 +44,23 @@ export default {
 
         watch(isValid, async (newValue) => {
             if (newValue) {
-                console.log('true');
+                context.emit('updatePlatformInfo', seletedPlatform.value, tailNumber.value)
             }
-            else {
-                console.log('false');
+            else{
+                context.emit('updatePlatformInfo', '', null)
             }
         });
 
-        console.log(isValid);
+        function reset(){
+            seletedPlatform.value = ''
+            tailNumber.value = null
+        }
+
         return {
             platformsList,
             tailNumber,
-            seletedPlatform
+            seletedPlatform,
+            reset
         }
     }
 }

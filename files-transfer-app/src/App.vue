@@ -5,11 +5,11 @@
 
   <div id="mainWrapper">
     <div id="sideBar">
-      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @clearAll="clearAll"
+      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
         :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
     <div id="main">
-      <PlatformInfo :platforms="platforms"/>
+      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent"/>
       <div class="center" v-if="selectedFiles.length === 0">
         Choose files to upload...
       </div>
@@ -48,30 +48,42 @@ export default {
   setup() {
 
     const config = ref({})
-
     config.value = ipc.sendSync('getConfig')
     
     const platforms = ref(config.value.platforms)
+    
+    const platformInfoComponent = ref(null)
+    const selectedPlatform = ref();
+    const selectedTailNumber = ref();
+    const selectedFiles = ref([]);
+    
     const progressPercent = ref(0);
     const statusSummary = ref("");
-    const selectedFiles = ref([]);
     const uploadStatus = ref(uploadState.NONE);
 
-    function clearAll() {
+    function reset() {
       progressPercent.value = 0;
       statusSummary.value = "";
       selectedFiles.value = [];
       uploadStatus.value = uploadState.NONE;
+      platformInfoComponent.value.reset();
     }
 
-    watch(selectedFiles, async (newValue) => {
-      if (newValue.length > 0) {
+    watch([selectedFiles,selectedPlatform,selectedTailNumber], ([newFiles,newPlatform,newTailNumber]) => {
+      if (newFiles.length === 0 && newPlatform && newTailNumber) {
+        uploadStatus.value = uploadState.CHOOSE_FILES
+      } else if(newFiles.length > 0 && newPlatform && newTailNumber){
         uploadStatus.value = uploadState.READY
       }
       else {
         uploadStatus.value = uploadState.NONE
       }
     });
+
+    function updatePlatformInfo(platform, tailNumber){
+      selectedPlatform.value = platform;
+      selectedTailNumber.value = tailNumber;
+    }
 
     function updateSelectedFileList(files) {
       let newFiles = files.map((file) => {
@@ -135,10 +147,12 @@ export default {
       statusSummary,
       uploadStatus,
       platforms,
+      platformInfoComponent,
       updateSelectedFileList,
+      updatePlatformInfo,
       uploadFiles,
       removeFile,
-      clearAll,
+      reset,
     };
   },
 };

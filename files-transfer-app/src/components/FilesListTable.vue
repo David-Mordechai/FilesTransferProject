@@ -38,7 +38,9 @@ export default {
         const files = computed(() => {return props.selectedFiles});
         
         const showDeleteFileColumn = computed(() => {
-            return props.uploadStat === uploadState.READY;
+            return props.uploadStat === uploadState.NONE || 
+                props.uploadStat === uploadState.READY || 
+                props.uploadStat === uploadState.CHOOSE_FILES;
         });
 
         function formatSize(size) {
@@ -55,7 +57,7 @@ export default {
                 case actionStatus.SUCCESS:
                     return 'success';
                 case actionStatus.FAILURE:
-                    return 'success'
+                    return 'failure'
                 default:
                     return 'regular'
             }

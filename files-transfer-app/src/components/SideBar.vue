@@ -8,8 +8,8 @@
   :disabled="uploadFilesButtonDisabled">Upload</button>
   
   <button class="btnSideBar btn btn-primary" 
-  @click="clearAll" 
-  :disabled="clearAllButtonDisabled">Clear All</button>
+  @click="reset" 
+  :disabled="resetButtonDisabled">Reset</button>
 </template>
 
 <script>
@@ -21,7 +21,7 @@ const ipc = electron.ipcRenderer;
 export default {
   name: "side-bar",
   props: ["selectedFiles", "uploadStat"],
-  emits: ["updateSelectedFileList", "uploadFiles", "clearAll"],
+  emits: ["updateSelectedFileList", "uploadFiles", "reset"],
   setup(props, context) {
     
     const files = computed(() => {return props.selectedFiles});
@@ -34,7 +34,7 @@ export default {
       return props.uploadStat !== uploadState.READY;
     });
     
-    const clearAllButtonDisabled = computed(() => {
+    const resetButtonDisabled = computed(() => {
       return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.NONE;
     });
 
@@ -43,8 +43,8 @@ export default {
       context.emit("updateSelectedFileList", newFiles);
     }
 
-    function clearAll() {
-      context.emit("clearAll", []);
+    function reset() {
+      context.emit("reset", []);
     }
 
     function uploadFiles() {
@@ -55,10 +55,10 @@ export default {
       files,
       selectFilesButtonDisabled,
       uploadFilesButtonDisabled,
-      clearAllButtonDisabled,
+      resetButtonDisabled,
       selectFiles,
       uploadFiles,
-      clearAll,
+      reset,
     };
   },
 };
