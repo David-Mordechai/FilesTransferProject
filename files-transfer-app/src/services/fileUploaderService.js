@@ -3,7 +3,6 @@ import fs from 'fs'
 
 const successResponse = { 'success': true }
 const errorResponse = { 'success': false, 'error': 'Upload fail'}
-const localFolderRootPath = 'C:\\Temp\\FilesTransferProject\\'
 
 export const uploadFile = async (file) => {
     try {
@@ -23,20 +22,21 @@ export const uploadFile = async (file) => {
     }
 }
 
-export const copyFileToLocalFolder = (file) => {
+export const copyFileToLocalFolder = (file, localRootFolder) => {
+    let localFilePath = `${localRootFolder}${file.name}`
     try {
 
-        if (!fs.existsSync(localFolderRootPath)){
-            fs.mkdirSync(localFolderRootPath);
+        if (!fs.existsSync(localRootFolder)){
+            fs.mkdirSync(localRootFolder);
         }
         
-        let localFilePath = `${localFolderRootPath}${file.name}`
         fs.copyFileSync(file.path, localFilePath);
         
-        return localFilePath;
+        return {copyStatus: true, copyError: '', localFilePath};
         
     } catch (error) {
         console.log(error);
+        return {copyStatus: false, copyError: `Failed copy file ${file.name} to local folder`};
     }
 }
 
@@ -44,12 +44,14 @@ export const deleteFileFromSourceFolder = (file) => {
     try {
         
         if (!fs.existsSync(file.path)){
-            return;
+            return {deleteStatus: true };
         }
 
         fs.unlinkSync(file.path);
+        return {deleteStatus: true };
 
     } catch (error) {
         console.log(error);
+        return { deleteStatus: false, deleteError: `Failed delete file ${file.name} from source folder`}
     }
 }

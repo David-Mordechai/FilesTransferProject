@@ -5,24 +5,40 @@
 
   <div id="mainWrapper">
     <div id="sideBar">
-      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
-        :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
+      <SideBar
+        @updateSelectedFileList="updateSelectedFileList"
+        @uploadFiles="uploadFiles"
+        @reset="reset"
+        :selectedFiles="selectedFiles"
+        :uploadStat="uploadStatus"
+      />
     </div>
     <div id="main">
-      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent"/>
+      <PlatformInfo
+        :platforms="platforms"
+        @updatePlatformInfo="updatePlatformInfo"
+        ref="platformInfoComponent"
+      />
       <div class="center" v-if="selectedFiles.length === 0">
         Choose files to upload...
       </div>
-      
-      <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
-        @removeFile="removeFile" />
+
+      <FilesListTable
+        v-if="selectedFiles.length > 0"
+        :selectedFiles="selectedFiles"
+        :uploadStat="uploadStatus"
+        @removeFile="removeFile"
+      />
     </div>
   </div>
 
   <footer id="footer">
     <div class="status-bar">
       <div class="status-summary">{{ statusSummary }}</div>
-      <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
+      <ProgressBar
+        class="status-progressBar"
+        :progressPercent="progressPercent"
+      />
     </div>
   </footer>
 </template>
@@ -34,29 +50,31 @@ import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
-
-// import { uploadFile, copyFileToLocalFolder, deleteFileFromSourceFolder } from "./services/fileUploaderService";
-import { uploadFile } from "./services/fileUploaderService";
+import {
+  uploadFile,
+  copyFileToLocalFolder,
+  deleteFileFromSourceFolder,
+} from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 const { unionBy } = require("lodash");
-const electron = require('electron')
-const ipc = electron.ipcRenderer
+const electron = require("electron");
+const ipc = electron.ipcRenderer;
 
 export default {
   name: "App",
   components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo },
   setup() {
+    const config = ref({});
+    config.value = ipc.sendSync("getConfig");
+    const localRootFolder = config.value.localRootFolder;
 
-    const config = ref({})
-    config.value = ipc.sendSync('getConfig')
-    
-    const platforms = ref(config.value.platforms)
-    
-    const platformInfoComponent = ref(null)
+    const platforms = ref(config.value.platforms);
+
+    const platformInfoComponent = ref(null);
     const selectedPlatform = ref();
     const selectedTailNumber = ref();
     const selectedFiles = ref([]);
-    
+
     const progressPercent = ref(0);
     const statusSummary = ref("");
     const uploadStatus = ref(uploadState.NONE);
@@ -69,18 +87,20 @@ export default {
       platformInfoComponent.value.reset();
     }
 
-    watch([selectedFiles,selectedPlatform,selectedTailNumber], ([newFiles,newPlatform,newTailNumber]) => {
-      if (newFiles.length === 0 && newPlatform && newTailNumber) {
-        uploadStatus.value = uploadState.CHOOSE_FILES
-      } else if(newFiles.length > 0 && newPlatform && newTailNumber){
-        uploadStatus.value = uploadState.READY
+    watch(
+      [selectedFiles, selectedPlatform, selectedTailNumber],
+      ([newFiles, newPlatform, newTailNumber]) => {
+        if (newFiles.length === 0 && newPlatform && newTailNumber) {
+          uploadStatus.value = uploadState.CHOOSE_FILES;
+        } else if (newFiles.length > 0 && newPlatform && newTailNumber) {
+          uploadStatus.value = uploadState.READY;
+        } else {
+          uploadStatus.value = uploadState.NONE;
+        }
       }
-      else {
-        uploadStatus.value = uploadState.NONE
-      }
-    });
+    );
 
-    function updatePlatformInfo(platform, tailNumber){
+    function updatePlatformInfo(platform, tailNumber) {
       selectedPlatform.value = platform;
       selectedTailNumber.value = tailNumber;
     }
@@ -91,8 +111,9 @@ export default {
           name: file.name,
           size: file.size,
           path: file.path,
-          uploaded: actionStatus.PENDING,
+          copied: actionStatus.PENDING,
           deleted: actionStatus.PENDING,
+          uploaded: actionStatus.PENDING,
         };
       });
 
@@ -123,21 +144,51 @@ export default {
       uploadStatus.value = uploadState.IN_PROGRESS;
       progressPercent.value = 1;
       statusSummary.value = "";
-      let progressStep = Math.round(100 / selectedFiles.value.length) - 1;
+      let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
+
+      let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
+      let localFilesToUpload = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
-        statusSummary.value = `Uploaded file: ${selectedFiles.value[i].name}`;
-        
-        let result = await uploadFile(selectedFiles.value[i]);
-        // let localFilePath = copyFileToLocalFolder(selectedFiles.value[i])
-        // deleteFileFromSourceFolder(selectedFiles.value[i])
+        statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
+        let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
+          selectedFiles.value[i],
+          localFolder
+        );
+        if (copyStatus === false) {
+          statusSummary.value = copyError;
+          selectedFiles.value[i].copied = actionStatus.FAILURE;
+          continue;
+        } else {
+          localFilesToUpload.push({ localFilePath, index: i });
+          selectedFiles.value[i].copied = actionStatus.SUCCESS;
+          progressPercent.value += progressStep;
+        }
 
-        selectedFiles.value[i].uploaded = result.success ? actionStatus.SUCCESS : actionStatus.FAILURE;
-        selectedFiles.value[i].deleted = result.success ? actionStatus.SUCCESS : actionStatus.FAILURE;
-
-        progressPercent.value += progressStep;
+        statusSummary.value = `Deleting file: ${selectedFiles.value[i].name} from source folder`;
+        let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
+          selectedFiles.value[i]
+        );
+        if (deleteStatus === false) {
+          statusSummary.value = deleteError;
+          selectedFiles.value[i].deleted = actionStatus.FAILURE;
+        } else {
+          selectedFiles.value[i].deleted = actionStatus.SUCCESS;
+          progressPercent.value += progressStep;
+        }
       }
-      progressPercent.value = 100;
-      statusSummary.value = "Files uploaded successfully.";
+
+      localFilesToUpload.forEach(async ({ localFilePath, index }) => {
+        let uploadStatus = await uploadFile(localFilePath);
+        if(uploadStatus === false){
+          selectedFiles.value[index].uploaded = actionStatus.FAILURE
+        }else{
+          selectedFiles.value[index].uploaded = actionStatus.SUCCESS
+          progressPercent.value += progressStep;
+        }
+      });
+
+      progressPercent.value = Math.ceil(progressPercent.value);
+      statusSummary.value = "Process complete.";
       uploadStatus.value = uploadState.COMPLETED;
     }
 

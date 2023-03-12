@@ -5,8 +5,9 @@
                 <th class="th-remove" v-if="showDeleteFileColumn"> </th>
                 <th class="th-name">File Name</th>
                 <th>Size</th>
-                <th>Uploaded</th>
+                <th>Copied</th>
                 <th>Deleted</th>
+                <th>Uploaded</th>
             </tr>
         </thead>
         <tbody>
@@ -19,8 +20,9 @@
                 </td>
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
-                <td :class="statusClass(file.uploaded)">{{ file.uploaded }}</td>
+                <td :class="statusClass(file.copied)">{{ file.copied }}</td>
                 <td :class="statusClass(file.deleted)">{{ file.deleted }}</td>
+                <td :class="statusClass(file.uploaded)">{{ file.uploaded }}</td>
             </tr>
         </tbody>
     </table>
@@ -35,7 +37,9 @@ export default {
     emits: ['removeFile'],
     setup(props, context) {
 
-        const files = computed(() => {return props.selectedFiles});
+        const files = computed(() => {
+            return props.selectedFiles
+        });
         
         const showDeleteFileColumn = computed(() => {
             return props.uploadStat === uploadState.NONE || 
@@ -44,6 +48,8 @@ export default {
         });
 
         function formatSize(size) {
+            if(size === 0)
+                return '0 kB' 
             var i = Math.floor(Math.log(size) / Math.log(1024));
             return (
                 (size / Math.pow(1024, i)).toFixed(2) * 1 +

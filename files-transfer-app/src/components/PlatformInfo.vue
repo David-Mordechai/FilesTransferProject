@@ -4,7 +4,7 @@
             <div class="col">
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="inputPlatform">Platform</label>
-                    <select class="form-select" required id="inputPlatform" v-model="seletedPlatform">
+                    <select class="form-select" required id="inputPlatform" v-model="selectedPlatform">
                         <option value="" selected>Choose...</option>
                         <option v-for="platform in platformsList" :key="platform.key" :value="platform.key">
                             {{ platform.value }}
@@ -29,22 +29,21 @@ export default {
     name: 'platform-info',
     props: ['platforms'],
     emits: ['updatePlatformInfo'],
-    expose: ['reset'],
     setup(props, context) {
         const platformsList = ref(props.platforms);
         const tailNumber = ref()
-        const seletedPlatform = ref('')
+        const selectedPlatform = ref('')
 
         let isValid = ref(false)
         isValid = computed(() => {
             const validTailNumber = tailNumber.value && tailNumber.value > 99 && tailNumber.value < 10000;
-            const validPlatform = seletedPlatform.value !== '';
+            const validPlatform = selectedPlatform.value !== '';
             return validTailNumber && validPlatform;
         });
 
         watch(isValid, async (newValue) => {
             if (newValue) {
-                context.emit('updatePlatformInfo', seletedPlatform.value, tailNumber.value)
+                context.emit('updatePlatformInfo', selectedPlatform.value, tailNumber.value)
             }
             else{
                 context.emit('updatePlatformInfo', '', null)
@@ -52,14 +51,14 @@ export default {
         });
 
         function reset(){
-            seletedPlatform.value = ''
+            selectedPlatform.value = ''
             tailNumber.value = null
         }
 
         return {
             platformsList,
             tailNumber,
-            seletedPlatform,
+            selectedPlatform,
             reset
         }
     }

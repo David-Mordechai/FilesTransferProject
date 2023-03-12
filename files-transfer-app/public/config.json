@@ -1,5 +1,5 @@
 {
-    "localRootFolder": "C:\\Temp\\TestFilesTransfer\\",
+    "localRootFolder": "C:\\Temp\\FilesTransferProject\\",
     "platforms": [
         { "key" : "ORB2", "value" : "Orbiter 2" },   
         { "key" : "ORB3", "value" : "Orbiter 3" },   
