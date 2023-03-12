@@ -1,24 +1,21 @@
 import axios from "axios";
 import fs from 'fs'
 
-const successResponse = { 'success': true }
-const errorResponse = { 'success': false, 'error': 'Upload fail'}
-
-export const uploadFile = async (file) => {
+export const uploadFile = async (fileName,localFilePath) => {
     try {
         const response = await axios.post('https://localhost:7180/transferFile', {
-            "fileType": `${file.name}`,
-            "filePath": `${file.path}`
+            "fileType": `${fileName}`,
+            "filePath": `${localFilePath}`
         })
         
         if(response.status === 200)
-            return successResponse
+            return { uploadStatus: true, uploadError: '' }
         
-        return errorResponse
+        return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` }
 
     } catch (error) {
         console.log(error);
-        return errorResponse
+        return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` }
     }
 }
 
@@ -27,7 +24,7 @@ export const copyFileToLocalFolder = (file, localRootFolder) => {
     try {
 
         if (!fs.existsSync(localRootFolder)){
-            fs.mkdirSync(localRootFolder);
+            fs.mkdirSync(localRootFolder, { recursive: true});
         }
         
         fs.copyFileSync(file.path, localFilePath);

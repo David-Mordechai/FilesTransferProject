@@ -5,40 +5,24 @@
 
   <div id="mainWrapper">
     <div id="sideBar">
-      <SideBar
-        @updateSelectedFileList="updateSelectedFileList"
-        @uploadFiles="uploadFiles"
-        @reset="reset"
-        :selectedFiles="selectedFiles"
-        :uploadStat="uploadStatus"
-      />
+      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
+        :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
     <div id="main">
-      <PlatformInfo
-        :platforms="platforms"
-        @updatePlatformInfo="updatePlatformInfo"
-        ref="platformInfoComponent"
-      />
+      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent" />
       <div class="center" v-if="selectedFiles.length === 0">
         Choose files to upload...
       </div>
 
-      <FilesListTable
-        v-if="selectedFiles.length > 0"
-        :selectedFiles="selectedFiles"
-        :uploadStat="uploadStatus"
-        @removeFile="removeFile"
-      />
+      <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
+        @removeFile="removeFile" />
     </div>
   </div>
 
   <footer id="footer">
     <div class="status-bar">
       <div class="status-summary">{{ statusSummary }}</div>
-      <ProgressBar
-        class="status-progressBar"
-        :progressPercent="progressPercent"
-      />
+      <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
     </div>
   </footer>
 </template>
@@ -149,6 +133,7 @@ export default {
       let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
       let localFilesToUpload = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
+        
         statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
         let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
           selectedFiles.value[i],
@@ -159,7 +144,7 @@ export default {
           selectedFiles.value[i].copied = actionStatus.FAILURE;
           continue;
         } else {
-          localFilesToUpload.push({ localFilePath, index: i });
+          localFilesToUpload.push({ fileName: selectedFiles.value[i].name, localFilePath, index: i });
           selectedFiles.value[i].copied = actionStatus.SUCCESS;
           progressPercent.value += progressStep;
         }
@@ -177,18 +162,20 @@ export default {
         }
       }
 
-      localFilesToUpload.forEach(async ({ localFilePath, index }) => {
-        let uploadStatus = await uploadFile(localFilePath);
-        if(uploadStatus === false){
+      for(let {fileName, localFilePath, index} of localFilesToUpload){
+        statusSummary.value = `Uploading file: ${fileName}`;
+        let {uploadStatus, uploadError} = await uploadFile(fileName, localFilePath);
+        if (uploadStatus === false) {
+          statusSummary.value = uploadError;
           selectedFiles.value[index].uploaded = actionStatus.FAILURE
-        }else{
+        } else {
           selectedFiles.value[index].uploaded = actionStatus.SUCCESS
           progressPercent.value += progressStep;
         }
-      });
+      }
 
       progressPercent.value = Math.ceil(progressPercent.value);
-      statusSummary.value = "Process complete.";
+      statusSummary.value = "Process complete";
       uploadStatus.value = uploadState.COMPLETED;
     }
 
