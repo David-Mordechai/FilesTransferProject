@@ -1,15 +1,10 @@
 <template>
-  <button class="btnSideBar btn btn-primary" 
-  @click="selectFiles"
-  :disabled="selectFilesButtonDisabled">Choose Files</button>
-  
-  <button class="btnSideBar btn btn-success" 
-  @click="uploadFiles" 
-  :disabled="uploadFilesButtonDisabled">Upload</button>
-  
-  <button class="btnSideBar btn btn-primary" 
-  @click="reset" 
-  :disabled="resetButtonDisabled">Reset</button>
+  <button class="btnSideBar btn btn-primary" @click="selectFiles" :disabled="selectFilesButtonDisabled">Choose
+    Files</button>
+
+  <button class="btnSideBar btn btn-success" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">Upload</button>
+
+  <button class="btnSideBar btn btn-primary" @click="reset" :disabled="resetButtonDisabled">Reset</button>
 </template>
 
 <script>
@@ -23,9 +18,9 @@ export default {
   props: ["selectedFiles", "uploadStat"],
   emits: ["updateSelectedFileList", "uploadFiles", "reset"],
   setup(props, context) {
-    
-    const files = computed(() => {return props.selectedFiles});
-    
+
+    const files = computed(() => { return props.selectedFiles });
+
     const selectFilesButtonDisabled = computed(() => {
       return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.COMPLETED;
     });
@@ -33,7 +28,7 @@ export default {
     const uploadFilesButtonDisabled = computed(() => {
       return props.uploadStat !== uploadState.READY;
     });
-    
+
     const resetButtonDisabled = computed(() => {
       return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.NONE;
     });

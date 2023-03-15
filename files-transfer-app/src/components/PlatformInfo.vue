@@ -45,12 +45,12 @@ export default {
             if (newValue) {
                 context.emit('updatePlatformInfo', selectedPlatform.value, tailNumber.value)
             }
-            else{
+            else {
                 context.emit('updatePlatformInfo', '', null)
             }
         });
 
-        function reset(){
+        function reset() {
             selectedPlatform.value = ''
             tailNumber.value = null
         }

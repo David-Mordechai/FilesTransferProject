@@ -10,6 +10,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 const ipc = electron.ipcMain
 var config = {}
 
+let configFilePath = path.join(
+  isDevelopment ? __dirname : __static, '../public/config.json')
+config = JSON.parse(fs.readFileSync(configFilePath));
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -65,10 +69,10 @@ async function createWindow() {
   })
 
   ipc.on('choose-files', (event) => {
-    const files = dialog.showOpenDialogSync({ 
-      properties: ['openFile', 'multiSelections'], 
+    const files = dialog.showOpenDialogSync({
+      properties: ['openFile', 'multiSelections'],
       filters: config.allowedFiles
-      })
+    })
     if (!files) {
       event.returnValue = []
       return
@@ -137,10 +141,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
-  let configFilePath =  path.join(
-    isDevelopment ? __dirname : __static, '../public/config.json') 
-  config = JSON.parse(fs.readFileSync(configFilePath));
-
+  
   createWindow()
 })
 

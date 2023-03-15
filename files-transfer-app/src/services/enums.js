@@ -1,7 +1,7 @@
 export const uploadState = Object.freeze({
-    NONE:   "none",
+    NONE: "none",
     CHOOSE_FILES: "chooseFiles",
-    READY:  "ready",
+    READY: "ready",
     IN_PROGRESS: "inProgress",
     COMPLETED: "completed"
 });

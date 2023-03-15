@@ -13,10 +13,7 @@
         <tbody>
             <tr v-for="file in files" :key="file.path">
                 <td @click="remove(file.path)" class="removeBtn" v-if="showDeleteFileColumn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
-                    </svg>
+                    <DeleteIcon />
                 </td>
                 <td>{{ file.name }}</td>
                 <td>{{ formatSize(file.size) }}</td>
@@ -31,48 +28,43 @@
 <script>
 import { computed } from 'vue'
 import { uploadState, actionStatus } from '../services/enums'
-export default {
-    name: 'files-list-table',
-    props: ['selectedFiles', "uploadStat"],
-    emits: ['removeFile'],
-    setup(props, context) {
+import DeleteIcon from './Icons/DeleteIcon.vue';
 
+export default {
+    name: "files-list-table",
+    components: { DeleteIcon },
+    props: ["selectedFiles", "uploadStat"],
+    emits: ["removeFile"],
+    setup(props, context) {
         const files = computed(() => {
-            return props.selectedFiles
+            return props.selectedFiles;
         });
-        
         const showDeleteFileColumn = computed(() => {
-            return props.uploadStat === uploadState.NONE || 
-                props.uploadStat === uploadState.READY || 
+            return props.uploadStat === uploadState.NONE ||
+                props.uploadStat === uploadState.READY ||
                 props.uploadStat === uploadState.CHOOSE_FILES;
         });
-
         function formatSize(size) {
-            if(size === 0)
-                return '0 kB' 
+            if (size === 0)
+                return "0 kB";
             var i = Math.floor(Math.log(size) / Math.log(1024));
-            return (
-                (size / Math.pow(1024, i)).toFixed(2) * 1 +
+            return ((size / Math.pow(1024, i)).toFixed(2) * 1 +
                 " " +
-                ["B", "kB", "MB", "GB", "TB"][i]
-            );
+                ["B", "kB", "MB", "GB", "TB"][i]);
         }
-
         function statusClass(status) {
             switch (status) {
                 case actionStatus.SUCCESS:
-                    return 'success';
+                    return "success";
                 case actionStatus.FAILURE:
-                    return 'failure'
+                    return "failure";
                 default:
-                    return 'regular'
+                    return "regular";
             }
         }
-
         function remove(path) {
-            context.emit('removeFile', path)
+            context.emit("removeFile", path);
         }
-
         return {
             files,
             showDeleteFileColumn,
@@ -90,24 +82,27 @@ table {
     font-size: large;
 }
 
-th{
+th {
     width: 100px;
 }
-.th-name{
+
+.th-name {
     width: auto;
 }
 
-.regular{
+.regular {
     color: inherit;
 }
 
-.th-remove{
+.th-remove {
     width: 40px;
 }
-.removeBtn{
-    cursor:pointer;    
+
+.removeBtn {
+    cursor: pointer;
 }
-.removeBtn>svg{
+
+.removeBtn>svg {
     width: 20px;
     height: 20px;
     fill: red;
@@ -121,5 +116,4 @@ th{
 .failure {
     color: red;
     transition: color 1s;
-}
-</style>
+}</style>

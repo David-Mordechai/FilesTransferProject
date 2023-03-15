@@ -133,7 +133,7 @@ export default {
       let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
       let localFilesToUpload = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
-        
+
         statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
         let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
           selectedFiles.value[i],
@@ -162,9 +162,9 @@ export default {
         }
       }
 
-      for(let {fileName, localFilePath, index} of localFilesToUpload){
+      for (let { fileName, localFilePath, index } of localFilesToUpload) {
         statusSummary.value = `Uploading file: ${fileName}`;
-        let {uploadStatus, uploadError} = await uploadFile(fileName, localFilePath);
+        let { uploadStatus, uploadError } = await uploadFile(fileName, localFilePath);
         if (uploadStatus === false) {
           statusSummary.value = uploadError;
           selectedFiles.value[index].uploaded = actionStatus.FAILURE
