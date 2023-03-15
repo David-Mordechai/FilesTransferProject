@@ -4,10 +4,16 @@ module.exports = defineConfig({
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
+      mainProcessFile: './src/main/background.js',
       builderOptions: {
         extraResources: ['public/config.json']
       }
     },
+  },
+  pages: {
+    index:{
+      entry: './src/renderer/main.js'
+    } 
   },
   configureWebpack: {
     devtool: 'source-map'
