@@ -4,7 +4,7 @@ module.exports = defineConfig({
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
-      mainProcessFile: './src/main/background.js',
+      mainProcessFile: './src/electron/main.js',
       builderOptions: {
         extraResources: ['public/config.json']
       }
@@ -12,7 +12,7 @@ module.exports = defineConfig({
   },
   pages: {
     index:{
-      entry: './src/renderer/main.js'
+      entry: './src/vueRenderer/main.js'
     } 
   },
   configureWebpack: {
