@@ -4,8 +4,9 @@ import fs from "fs";
 var path = require('path');
 
 var config = {}
-
+var mainWin
 export const addListeners = async (win, isDevelopment) => {
+    mainWin = win;
 
     let configFilePath = path.join(
         isDevelopment ? __dirname : __static, '../public/config.json')
@@ -71,4 +72,5 @@ export const addListeners = async (win, isDevelopment) => {
 
 export const removeListeners = () => {
     ipc.removeAllListeners();
+    mainWin.removeAllListeners();
 }

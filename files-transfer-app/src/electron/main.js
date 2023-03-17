@@ -17,12 +17,13 @@ let win
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    minWidth: 800,
-    height: 600,
-    minHeight: 600,
+    width: 1200,
+    minWidth: 1200,
+    height: 650,
+    minHeight: 650,
     frame: false,
     show: false,
+    menuBarVisible: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -30,8 +31,6 @@ async function createWindow() {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
-
-  win.menuBarVisible = false
 
   win.on('ready-to-show', async () => {
     win.show();
