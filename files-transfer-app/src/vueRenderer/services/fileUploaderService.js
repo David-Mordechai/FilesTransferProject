@@ -10,28 +10,39 @@ export const uploadFile = async (fileName, localFilePath) => {
 
     if (response.status === 200) return { uploadStatus: true, uploadError: "" };
 
-    return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` };
+    return {
+      uploadRetryStatus: false,
+      uploadError: `Upload ${fileName} Failed`,
+    };
   } catch (error) {
     console.log(error);
-    return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` };
+    return {
+      uploadRetryStatus: false,
+      uploadError: `Upload ${fileName} Failed`,
+    };
   }
 };
 
-export const copyFileToLocalFolder = (file, localRootFolder) => {
-  let localFilePath = `${localRootFolder}${file.name}`;
+export const copyFileToLocalFolder = (
+  sourceFile,
+  targetFile,
+  localRootFolder
+) => {
+  //   let localFilePath = `${localRootFolder}${file.name}`;
   try {
     if (!fs.existsSync(localRootFolder)) {
       fs.mkdirSync(localRootFolder, { recursive: true });
     }
+    console.log(sourceFile);
+    console.log(targetFile);
+    fs.copyFileSync(sourceFile, targetFile);
 
-    fs.copyFileSync(file.path, localFilePath);
-
-    return { copyStatus: true, copyError: "", localFilePath };
+    return { copyStatus: true, copyError: "", targetFile };
   } catch (error) {
     console.log(error);
     return {
       copyStatus: false,
-      copyError: `Failed copy file ${file.name} to local folder`,
+      copyError: `Failed copy file ${sourceFile} to local folder`,
     };
   }
 };

@@ -14,7 +14,7 @@
       <div class="center" v-if="selectedFiles.length === 0 && openFailure !== true">
         Choose files to upload...
       </div>
-      <Failures v-if="openFailure === true" />
+      <Failures v-if="openFailure === true" :failuresFilesList="failuresFilesList" @retryUpload="retryUpload" />
 
       <FilesListTable v-if="selectedFiles.length > 0 && openFailure === false" :selectedFiles="selectedFiles"
         :uploadStat="uploadStatus" @removeFile="removeFile" />
@@ -53,6 +53,8 @@ export default {
   setup() {
     const config = ref({});
     config.value = ipc.sendSync("getConfig");
+
+    const failuresFilesList = ref([]);
     const localRootFolder = config.value.localRootFolder;
 
     const platforms = ref(config.value.platforms);
@@ -81,6 +83,7 @@ export default {
       else openFailure.value = true;
 
       console.log(failuresFiles);
+      failuresFilesList.value = failuresFiles;
     }
     watch(
       [selectedFiles, selectedPlatform, selectedTailNumber],
@@ -141,14 +144,21 @@ export default {
       statusSummary.value = "";
       let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
 
-      let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
+      //let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
+
       let localFilesToUpload = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
 
         statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
+        const arr = selectedFiles.value[i].name.split('.')
+        let a = arr[0]
+        const b = arr[1]
+        a = `${a}-${selectedPlatform.value}-${selectedTailNumber.value}`
+        const targetFile = `${localRootFolder}${a}.${b}`
         let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
-          selectedFiles.value[i],
-          localFolder,
+          selectedFiles.value[i].path,
+          targetFile,
+          localRootFolder,
         );
         if (copyStatus === false) {
           statusSummary.value = copyError;
@@ -175,8 +185,8 @@ export default {
 
       for (let { fileName, localFilePath, index } of localFilesToUpload) {
         statusSummary.value = `Uploading file: ${fileName}`;
-        let { uploadStatus, uploadError } = await uploadFile(fileName, localFilePath);
-        if (uploadStatus === false) {
+        let { uploadRetryStatus, uploadError } = await uploadFile(fileName, localFilePath);
+        if (uploadRetryStatus === false) {
           statusSummary.value = uploadError;
           selectedFiles.value[index].uploaded = actionStatus.FAILURE
         } else {
@@ -191,6 +201,48 @@ export default {
       uploadStatus.value = uploadState.COMPLETED;
     }
 
+    async function retryUpload() {
+
+      console.log("WE ARE IN RETRY");
+      uploadStatus.value = uploadState.IN_PROGRESS;
+      progressPercent.value = 1;
+      statusSummary.value = "";
+      let progressStep = Math.round(100 / (failuresFilesList.value.length));
+
+
+      for (let i = 0; i < failuresFilesList.value.length; i++) {
+
+
+
+        //for (let file of failuresFilesList.value) {
+        statusSummary.value = `Uploading file: ${failuresFilesList.value[i].name}`;
+        let { uploadRetryStatus, uploadError } = await uploadFile(failuresFilesList.value[i].name, failuresFilesList.value[i].path);
+        if (uploadRetryStatus === false) {
+          statusSummary.value = uploadError;
+          failuresFilesList.value[i].uploaded = actionStatus.FAILURE
+        } else {
+          failuresFilesList.value[i].uploaded = actionStatus.SUCCESS
+
+          let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
+            failuresFilesList.value[i]
+          );
+          if (deleteStatus === false) {
+            statusSummary.value = deleteError;
+            //  failuresFilesList.value[i].deleted = actionStatus.FAILURE;
+          } else {
+            progressPercent.value += progressStep;
+          }
+
+          progressPercent.value += progressStep;
+
+        }
+        //}
+
+        progressPercent.value = Math.ceil(progressPercent.value);
+        statusSummary.value = "Process complete";
+        uploadStatus.value = uploadState.COMPLETED;
+      }
+    }
     return {
       selectedFiles,
       progressPercent,
@@ -203,10 +255,11 @@ export default {
       uploadFiles,
       removeFile,
       reset,
+      retryUpload,
       openFailure,
-      OpenFailures
+      OpenFailures, failuresFilesList
     };
-  },
+  }
 };
 </script>
 

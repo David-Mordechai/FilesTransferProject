@@ -6,43 +6,69 @@
                 <tr>
                     <th class="th-name">File Name</th>
                     <th>Size</th>
-                    <th>Copied</th>
+                    <th>Path</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="file in files" :key="file.path">
+                <tr v-for="file in files" :key="file.name">
                     <td>{{ file.name }}</td>
                     <td>{{ formatSize(file.size) }}</td>
-                    <td :class="statusClass(file.copied)">{{ file.copied }}</td>
+                    <td>{{ file.path }}</td>
                 </tr>
             </tbody>
         </table>
+
+        <button class="btn btn-success" @click="retry">Retry</button>
     </div>
 </template>
 
 <script>
 import { computed } from '@vue/reactivity';
-const electron = require("electron");
-
-const ipc = electron.ipcRenderer;
 export default {
     name: `Failures`,
-    props: ["failuresFiles"],
-    setup(props) {
+    props: ['failuresFilesList'],
+    emits: ["retryUpload"],
+    setup(props, context) {
         const files = computed(() => {
-            return props.failuresFiles
-        })
+            console.log(props.failuresFilesList);
+            return props.failuresFilesList;
+        });
 
-        ipc.on('filesCounter', (_, args) => {
-            console.log(args);
-            // props.failuresFiles = args
-        })
-
+        function formatSize(size) {
+            if (size === 0)
+                return "0 kB";
+            var i = Math.floor(Math.log(size) / Math.log(1024));
+            return ((size / Math.pow(1024, i)).toFixed(2) * 1 +
+                " " +
+                ["B", "kB", "MB", "GB", "TB"][i]);
+        }
+        function retry() {
+            context.emit("retryUpload");
+        }
         return {
-            files
+            files,
+            formatSize,
+            retry
         }
     }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+table {
+    color: #1c1c1cd9;
+    font-size: large;
+}
+
+th {
+    width: 100px;
+}
+
+.th-name {
+    width: auto;
+}
+
+.regular {
+    color: inherit;
+}
+</style>

@@ -6,7 +6,7 @@
 
   <button class="btnSideBar btn btn-primary" @click="reset" :disabled="resetButtonDisabled">Reset</button>
 
-  <button class="btnSideBar btn btn-danger" @click="openFailures" v-show="failuresIsDisplay">
+  <button class="btnSideBar btn btn-danger" @click="openFailures" v-if="failuresIsDisplay">
     Failures {{ failuresFilesCounter }}</button>
 </template>
 
@@ -45,7 +45,7 @@ export default {
     });
 
     const failuresIsDisplay = computed(() => {
-      return props.uploadStat !== uploadState.IN_PROGRESS || failuresFilesCounter.value > 0
+      return props.uploadStat !== uploadState.IN_PROGRESS && failuresFilesCounter.value > 0
     })
     function selectFiles() {
       let newFiles = ipc.sendSync("choose-files");
