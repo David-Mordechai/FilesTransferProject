@@ -13,7 +13,8 @@ import {
 import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
-import { config } from '../models/config'
+import { config } from './models/config';
+import { uploadFileModel } from "./models/uploadFileModel";
 
 export default {
   name: "App",
@@ -29,7 +30,7 @@ export default {
     const selectedPlatform = ref();
     const selectedTailNumber = ref();
     const selectedFiles = ref();
-    selectedFiles.value = {}
+    selectedFiles.value = []
 
     const progressPercent = ref(0);
     const statusSummary = ref();
@@ -104,7 +105,7 @@ export default {
       let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
 
       let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
-      let localFilesToUpload = [];
+      let localFilesToUpload: uploadFileModel[] = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
 
         statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
@@ -117,7 +118,7 @@ export default {
           selectedFiles.value[i].copied = actionStatus.FAILURE;
           continue;
         } else {
-          localFilesToUpload.push({ fileName: selectedFiles.value[i].name, localFilePath, index: i });
+          localFilesToUpload.push({ name: selectedFiles.value[i].name, path: localFilePath, sourceIndex: i });
           selectedFiles.value[i].copied = actionStatus.SUCCESS;
           progressPercent.value += progressStep;
         }
@@ -135,14 +136,14 @@ export default {
         }
       }
 
-      for (let { fileName, localFilePath, index } of localFilesToUpload) {
-        statusSummary.value = `Uploading file: ${fileName}`;
-        let { uploadStatus, uploadError } = await uploadFile(fileName, localFilePath);
+      for (let { name, path, sourceIndex } of localFilesToUpload) {
+        statusSummary.value = `Uploading file: ${name}`;
+        let { uploadStatus, uploadError } = await uploadFile(name, path);
         if (uploadStatus === false) {
           statusSummary.value = uploadError;
-          selectedFiles.value[index].uploaded = actionStatus.FAILURE
+          selectedFiles.value[sourceIndex].uploaded = actionStatus.FAILURE
         } else {
-          selectedFiles.value[index].uploaded = actionStatus.SUCCESS
+          selectedFiles.value[sourceIndex].uploaded = actionStatus.SUCCESS
           progressPercent.value += progressStep;
         }
       }

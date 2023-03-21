@@ -65,7 +65,8 @@ async function createWindow() {
     win.show();
   })
 
-  await addListeners(win, false);
+  const isDevelopment = process.env.VITE_DEV_SERVER_URL ? true : false;
+  await addListeners(win, isDevelopment);
 
   win.on('closed', () => {
     removeListeners();
