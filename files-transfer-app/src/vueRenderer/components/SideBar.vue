@@ -5,10 +5,13 @@
   <button class="btnSideBar btn btn-success" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">Upload</button>
 
   <button class="btnSideBar btn btn-primary" @click="reset" :disabled="resetButtonDisabled">Reset</button>
+
+  <button class="btnSideBar btn btn-danger" @click="openFailures" v-show="failuresIsDisplay">
+    Failures {{ failuresFilesCounter }}</button>
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { uploadState } from '../services/enums';
 const electron = require("electron");
 
@@ -16,8 +19,15 @@ const ipc = electron.ipcRenderer;
 export default {
   name: "side-bar",
   props: ["selectedFiles", "uploadStat"],
-  emits: ["updateSelectedFileList", "uploadFiles", "reset"],
+  emits: ["updateSelectedFileList", "uploadFiles", "reset", "OpenFailures"],
   setup(props, context) {
+
+    const failuresFilesCounter = ref(0)
+
+    ipc.on('filesCounter', (_, args) => {
+      console.log(args);
+      failuresFilesCounter.value = args
+    })
 
     const files = computed(() => { return props.selectedFiles });
 
@@ -33,6 +43,9 @@ export default {
       return props.uploadStat === uploadState.IN_PROGRESS || props.uploadStat === uploadState.NONE;
     });
 
+    const failuresIsDisplay = computed(() => {
+      return props.uploadStat !== uploadState.IN_PROGRESS || failuresFilesCounter.value > 0
+    })
     function selectFiles() {
       let newFiles = ipc.sendSync("choose-files");
       context.emit("updateSelectedFileList", newFiles);
@@ -46,6 +59,10 @@ export default {
       context.emit("uploadFiles");
     }
 
+    function openFailures() {
+      let failuresFiles = ipc.sendSync("failure-files");
+      context.emit("OpenFailures", failuresFiles)
+    }
     return {
       files,
       selectFilesButtonDisabled,
@@ -53,7 +70,9 @@ export default {
       resetButtonDisabled,
       selectFiles,
       uploadFiles,
+      openFailures,
       reset,
+      failuresIsDisplay, failuresFilesCounter
     };
   },
 };
