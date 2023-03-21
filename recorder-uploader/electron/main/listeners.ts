@@ -2,15 +2,12 @@ import  { app, dialog, ipcMain } from 'electron'
 import { BrowserWindow } from 'electron/main';
 import fs from 'fs';
 import path from 'path';
+import { config } from '../../models/config'
 
 var config: config;
 var mainWin : BrowserWindow
 
-interface config {
-    localRootFolder: string;
-    platforms: [];
-    allowedFiles: [];
-}
+
 declare const __static: string;
 
 export const addListeners = async (win: BrowserWindow, isDevelopment: boolean) => {
@@ -18,8 +15,8 @@ export const addListeners = async (win: BrowserWindow, isDevelopment: boolean) =
 
     let configFilePath = path.join(__dirname,'../../public/config.json')
     
-        var configConetet = fs.readFileSync(configFilePath)
-        config = JSON.parse(configConetet.toString());
+        var configContent = fs.readFileSync(configFilePath)
+        config = JSON.parse(configContent.toString());
 
     win.on('maximize', () => {
         win.webContents.send('full-screen', { 'isFullScreen': true })

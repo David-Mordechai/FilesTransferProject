@@ -13,16 +13,17 @@ import {
 import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
+import { config } from '../models/config'
 
 export default {
   name: "App",
   components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo },
   setup() {
-    const config = ref();
+    const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
-    const localRootFolder = config.value.localRootFolder;
+    const localRootFolder = config.value!.localRootFolder;
 
-    const platforms = ref(config.value.platforms);
+    const platforms = ref(config.value!.platforms);
 
     const platformInfoComponent = ref();
     const selectedPlatform = ref();
