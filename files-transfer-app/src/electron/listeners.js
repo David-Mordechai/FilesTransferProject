@@ -24,15 +24,7 @@ export const addListeners = async (win, isDevelopment) => {
 
   fs.watch(config.localRootFolder, () => {
     // if (eventType === "rename") {
-    const files = fs.readdirSync(config.localRootFolder).filter((file) => {
-      console.log(file);
-      const fullPath = path.join(config.localRootFolder, file);
-      const stats = fs.statSync(fullPath);
-
-      return stats.isFile();
-    });
-    console.log(files);
-    win.webContents.send("filesCounter", files.length);
+    getFilesCount(win);
   });
 
   ipc.on("close", () => {
@@ -53,6 +45,10 @@ export const addListeners = async (win, isDevelopment) => {
 
   ipc.on("getConfig", (event) => {
     event.returnValue = config;
+  });
+
+  ipc.on("getFilesCount", () => {
+    getFilesCount(win);
   });
 
   ipc.on("choose-files", (event) => {
@@ -116,3 +112,15 @@ export const removeListeners = () => {
   ipc.removeAllListeners();
   mainWin.removeAllListeners();
 };
+
+function getFilesCount(win) {
+  const files = fs.readdirSync(config.localRootFolder).filter((file) => {
+    console.log(file);
+    const fullPath = path.join(config.localRootFolder, file);
+    const stats = fs.statSync(fullPath);
+
+    return stats.isFile();
+  });
+  console.log(files);
+  win.webContents.send("filesCounter", files.length);
+}

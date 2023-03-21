@@ -28,6 +28,7 @@ export default {
       console.log(args);
       failuresFilesCounter.value = args
     })
+    ipc.send("getFilesCount");
 
     const files = computed(() => { return props.selectedFiles });
 
