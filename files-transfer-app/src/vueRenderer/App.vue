@@ -40,6 +40,7 @@ import {
   uploadFile,
   copyFileToLocalFolder,
   deleteFileFromSourceFolder,
+  deleteUploadFileFromSourceFolder
 } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 import Failures from "./components/Failures.vue";
@@ -154,8 +155,9 @@ export default {
         let a = arr[0]
         const b = arr[1]
         a = `${a}-${selectedPlatform.value}-${selectedTailNumber.value}`
+        const c = `${a}.${b}`;
         const targetFile = `${localRootFolder}${a}.${b}`
-        let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
+        let { copyStatus, copyError } = copyFileToLocalFolder(
           selectedFiles.value[i].path,
           targetFile,
           localRootFolder,
@@ -165,7 +167,8 @@ export default {
           selectedFiles.value[i].copied = actionStatus.FAILURE;
           continue;
         } else {
-          localFilesToUpload.push({ fileName: selectedFiles.value[i].name, localFilePath, index: i });
+          localFilesToUpload.push({ fileName: c, localFilePath: targetFile, index: i });
+          console.log(localFilesToUpload);
           selectedFiles.value[i].copied = actionStatus.SUCCESS;
           progressPercent.value += progressStep;
         }
@@ -191,6 +194,9 @@ export default {
           selectedFiles.value[index].uploaded = actionStatus.FAILURE
         } else {
           selectedFiles.value[index].uploaded = actionStatus.SUCCESS
+
+          deleteUploadFileFromSourceFolder(localFilePath);
+
           progressPercent.value += progressStep;
 
         }

@@ -63,3 +63,20 @@ export const deleteFileFromSourceFolder = (file) => {
     };
   }
 };
+
+export const deleteUploadFileFromSourceFolder = (file) => {
+  try {
+    if (!fs.existsSync(file)) {
+      return { deleteStatus: true };
+    }
+
+    fs.unlinkSync(file);
+    return { deleteStatus: true };
+  } catch (error) {
+    console.log(error);
+    return {
+      deleteStatus: false,
+      deleteError: `Failed delete file ${file.name} from source folder`,
+    };
+  }
+};
