@@ -139,6 +139,29 @@ export default {
       );
     }
 
+    async function uploadTask(files, statusSummary, index) {
+      statusSummary.value = `Uploading file: ${files.value[index].name}`;
+      let { uploadRetryStatus, uploadError } = await uploadFile(files.value[index].name, files.value[index].path);
+      if (uploadRetryStatus === false) {
+        statusSummary.value = uploadError;
+        files.value[index].uploaded = actionStatus.FAILURE
+      } else {
+        files.value[index].uploaded = actionStatus.SUCCESS
+      }
+    }
+
+    function deleteTask(files, statusSummary, progressPercent, progressStep, index) {
+      let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
+        files.value[index]
+      );
+      if (deleteStatus === false) {
+        statusSummary.value = deleteError;
+      } else {
+        progressPercent.value += progressStep;
+      }
+    }
+
+
     async function uploadFiles() {
       uploadStatus.value = uploadState.IN_PROGRESS;
       progressPercent.value = 1;
@@ -174,16 +197,8 @@ export default {
         }
 
         statusSummary.value = `Deleting file: ${selectedFiles.value[i].name} from source folder`;
-        let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
-          selectedFiles.value[i]
-        );
-        if (deleteStatus === false) {
-          statusSummary.value = deleteError;
-          selectedFiles.value[i].deleted = actionStatus.FAILURE;
-        } else {
-          selectedFiles.value[i].deleted = actionStatus.SUCCESS;
-          progressPercent.value += progressStep;
-        }
+
+        deleteTask(selectedFiles, statusSummary, progressPercent, progressStep, i);
       }
 
       for (let { fileName, localFilePath, index } of localFilesToUpload) {
@@ -208,47 +223,29 @@ export default {
     }
 
     async function retryUpload() {
-
-      console.log("WE ARE IN RETRY");
       uploadStatus.value = uploadState.IN_PROGRESS;
       progressPercent.value = 1;
       statusSummary.value = "";
       let progressStep = Math.round(100 / (failuresFilesList.value.length));
 
-
       for (let i = 0; i < failuresFilesList.value.length; i++) {
-
-
-
-        //for (let file of failuresFilesList.value) {
         statusSummary.value = `Uploading file: ${failuresFilesList.value[i].name}`;
-        let { uploadRetryStatus, uploadError } = await uploadFile(failuresFilesList.value[i].name, failuresFilesList.value[i].path);
-        if (uploadRetryStatus === false) {
-          statusSummary.value = uploadError;
-          failuresFilesList.value[i].uploaded = actionStatus.FAILURE
-        } else {
-          failuresFilesList.value[i].uploaded = actionStatus.SUCCESS
 
-          let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
-            failuresFilesList.value[i]
-          );
-          if (deleteStatus === false) {
-            statusSummary.value = deleteError;
-            //  failuresFilesList.value[i].deleted = actionStatus.FAILURE;
-          } else {
-            progressPercent.value += progressStep;
-          }
+        uploadTask(failuresFilesList, statusSummary, i);
 
-          progressPercent.value += progressStep;
+        deleteTask(failuresFilesList, statusSummary, progressPercent, progressStep, i);
 
-        }
-        //}
+        progressPercent.value += progressStep;
 
-        progressPercent.value = Math.ceil(progressPercent.value);
-        statusSummary.value = "Process complete";
-        uploadStatus.value = uploadState.COMPLETED;
       }
+      //}
+
+
+      progressPercent.value = Math.ceil(progressPercent.value);
+      statusSummary.value = "Process complete";
+      uploadStatus.value = uploadState.COMPLETED;
     }
+
     return {
       selectedFiles,
       progressPercent,
@@ -265,8 +262,11 @@ export default {
       openFailure,
       OpenFailures, failuresFilesList
     };
+
   }
-};
+}
+
+
 </script>
 
 <style>
