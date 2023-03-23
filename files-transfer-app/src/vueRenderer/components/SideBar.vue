@@ -22,7 +22,7 @@ export default {
   emits: ["updateSelectedFileList", "uploadFiles", "reset", "OpenFailures"],
   setup(props, context) {
 
-    const failuresFilesCounter = ref(0)
+    const failuresFilesCounter = ref(0);
 
     ipc.on('filesCounter', (_, args) => {
       console.log(args);

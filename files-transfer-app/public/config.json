@@ -1,5 +1,4 @@
 {
-    "backupRootFolder": "C:\\Temp\\FilesTransferProject\\",
     "localRootFolder": "C:\\Temp\\FilesTransferProject\\",
     "platforms": [
         { "key" : "ORB2", "value" : "Orbiter 2" },   

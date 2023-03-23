@@ -24,7 +24,7 @@ export const addListeners = async (win, isDevelopment) => {
 
   fs.watch(config.localRootFolder, () => {
     // if (eventType === "rename") {
-    getFilesCount(win);
+    getFiles(win);
   });
 
   ipc.on("close", () => {
@@ -48,7 +48,7 @@ export const addListeners = async (win, isDevelopment) => {
   });
 
   ipc.on("getFilesCount", () => {
-    getFilesCount(win);
+    getFiles(win);
   });
 
   ipc.on("choose-files", (event) => {
@@ -113,7 +113,7 @@ export const removeListeners = () => {
   mainWin.removeAllListeners();
 };
 
-function getFilesCount(win) {
+function getFiles(win) {
   const files = fs.readdirSync(config.localRootFolder).filter((file) => {
     console.log(file);
     const fullPath = path.join(config.localRootFolder, file);
