@@ -8,11 +8,16 @@ var mainWin;
 export const addListeners = async (win, isDevelopment) => {
   mainWin = win;
 
-  let configFilePath = path.join(
-    isDevelopment ? __dirname : __static,
-    "../public/config.json"
-  );
-  config = JSON.parse(fs.readFileSync(configFilePath));
+  try {
+    let configFilePath = path.join(
+      isDevelopment ? __dirname : __static,
+      "../public/config.json"
+    );
+    config = JSON.parse(fs.readFileSync(configFilePath));
+  } catch (error) {
+    console.log(error);
+    config = { platforms: [], allowedFiles: [], localRootFolder: "" };
+  }
 
   win.on("maximize", () => {
     win.webContents.send("full-screen", { isFullScreen: true });

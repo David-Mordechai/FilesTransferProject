@@ -1,25 +1,23 @@
-import  { app, dialog, ipcMain } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
 import { BrowserWindow } from 'electron/main';
 import fs from 'fs';
 import path from 'path';
+import { config } from '../models/config'
 
 var config: config;
-var mainWin : BrowserWindow
-
-interface config {
-    localRootFolder: string;
-    platforms: [];
-    allowedFiles: [];
-}
-declare const __static: string;
+var mainWin: BrowserWindow
 
 export const addListeners = async (win: BrowserWindow, isDevelopment: boolean) => {
     mainWin = win;
 
-    let configFilePath = path.join(__dirname,'../../public/config.json')
-    
-        var configConetet = fs.readFileSync(configFilePath)
-        config = JSON.parse(configConetet.toString());
+    try {
+        let configFilePath = isDevelopment ? path.join(__dirname, '../../public/config.json') : path.join(process.env.PUBLIC,'config.json') ;
+        var configContent = fs.readFileSync(configFilePath)
+        config = JSON.parse(configContent.toString());
+    } catch (error) {
+        console.log(error);
+        config = { platforms: [], allowedFiles: [], localRootFolder: '' }
+    }
 
     win.on('maximize', () => {
         win.webContents.send('full-screen', { 'isFullScreen': true })

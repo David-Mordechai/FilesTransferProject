@@ -1,6 +1,12 @@
 <template>
     <div class="toolbar">
-        <div class="title">{{ applicationName }}</div>
+
+        <div class="titleWrapper">
+            <AppLogo />
+            <div class="titleCaption">
+                {{ applicationName }}
+            </div>
+        </div>
         <div class="logo">
             <Logo />
         </div>
@@ -28,10 +34,11 @@ import MinimizeIcon from "./Icons/MinimizeIcon.vue";
 import RestoreIcon from "./Icons/RestoreIcon.vue";
 import CloseIcon from "./Icons/CloseIcon.vue";
 import Logo from "./Icons/Logo.vue";
+import AppLogo from './Icons/appLogo.vue'
 import { ipcRenderer } from "electron";
 export default {
     name: "title-bar",
-    components: { Logo, MinimizeIcon, MaximizeIcon, RestoreIcon, CloseIcon },
+    components: { Logo, MinimizeIcon, MaximizeIcon, RestoreIcon, CloseIcon, AppLogo },
     props: ["appName"],
     setup(props) {
         const applicationName = ref(props.appName);
@@ -84,7 +91,9 @@ export default {
     justify-self: end;
 }
 
-.title {
+.titleWrapper {
+    display: inline-flex;
+    align-items: center;
     grid-area: a;
     height: 36px;
     line-height: 36px;
@@ -93,6 +102,9 @@ export default {
     justify-self: start;
 }
 
+.titleCaption{
+    margin-left: 5px;
+}
 .logo {
     grid-area: b;
     height: 100%;
@@ -142,4 +154,5 @@ export default {
 .btnScaleDown>svg,
 .btnClose>svg {
     fill: #fff;
-}</style>
+}
+</style>
