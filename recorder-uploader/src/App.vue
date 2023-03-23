@@ -173,7 +173,7 @@ export default {
 
 <template>
   <header id="header">
-    <TitleBar appName="Files Uploader" />
+    <TitleBar appName="Recorder Uploader" />
   </header>
 
   <div id="mainWrapper">
