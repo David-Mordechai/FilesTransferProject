@@ -37,10 +37,7 @@ import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import {
-  uploadFile,
-  copyFileToLocalFolder,
-  deleteFileFromSourceFolder,
-  deleteUploadFileFromSourceFolder
+  uploadFilesFunction, retryUploadFunction
 } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 import Failures from "./components/Failures.vue";
@@ -139,107 +136,19 @@ export default {
       );
     }
 
-    async function uploadTask(files, statusSummary, index, fileName, filePath) {
-      statusSummary.value = `Uploading file: ${files.value[index].name}`;
-      let { uploadRetryStatus, uploadError } = await uploadFile(fileName, filePath);
-      if (uploadRetryStatus === false) {
-        statusSummary.value = uploadError;
-        files.value[index].uploaded = actionStatus.FAILURE
-      } else {
-        files.value[index].uploaded = actionStatus.SUCCESS
-        deleteUploadFileFromSourceFolder(filePath);
-      }
+    function uploadFiles() {
+      uploadFilesFunction(uploadStatus,
+        progressPercent,
+        statusSummary,
+        selectedFiles,
+        selectedPlatform,
+        selectedTailNumber,
+        localRootFolder)
     }
 
-    function deleteTask(files, statusSummary, progressPercent, progressStep, index) {
-      statusSummary.value = `Deleting file: ${files.value[index].name} from source folder`;
-      let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
-        files.value[index]
-      );
-      if (deleteStatus === false) {
-        statusSummary.value = deleteError;
-        statusSummary.deleted = actionStatus.FAILURE;
-        files.value[index].deleted = actionStatus.FAILURE;
-      } else {
-        statusSummary.value = deleteStatus.SUCCESS;
-        files.value[index].deleted = actionStatus.SUCCESS;
-        progressPercent.value += progressStep;
-      }
+    function retryUpload() {
+      retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
     }
-
-    function copyFileTask(files, targetFile, destFolder, localFilesToUpload, fullName, statusSummary, progressStep, index) {
-      statusSummary.value = `Copying file: ${files.value[index].name} to local folder`;
-      let { copyStatus, copyError } = copyFileToLocalFolder(
-        files.value[index].path,
-        targetFile,
-        destFolder,
-      );
-      if (copyStatus === false) {
-        statusSummary.value = copyError;
-        files.value[index].copied = actionStatus.FAILURE;
-        // continue;
-      } else {
-        localFilesToUpload.push({ fileName: fullName, localFilePath: targetFile, index: index });
-        console.log(localFilesToUpload);
-        files.value[index].copied = actionStatus.SUCCESS;
-        progressPercent.value += progressStep;
-      }
-    }
-
-
-    function fileHandler(files, index, platform, tailNumber, folder) {
-      const seperateFileName = files.value[index].name.split('.');
-      let originName = seperateFileName[0];
-      const extension = seperateFileName[1];
-      originName = `${originName}-${platform}-${tailNumber}`;
-      const fullName = `${originName}.${extension}`;
-      const targetFile = `${folder}${originName}.${extension}`;
-
-      return { fullName, targetFile };
-    }
-
-    async function uploadFiles() {
-      uploadStatus.value = uploadState.IN_PROGRESS;
-      progressPercent.value = 1;
-      statusSummary.value = "";
-      let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
-      let localFilesToUpload = [];
-
-      for (let i = 0; i < selectedFiles.value.length; i++) {
-        let { fullName, targetFile } = fileHandler(selectedFiles, i, selectedPlatform.value, selectedTailNumber.value, localRootFolder);
-
-        copyFileTask(selectedFiles, targetFile, localRootFolder, localFilesToUpload, fullName, statusSummary, progressStep, i);
-
-        deleteTask(selectedFiles, statusSummary, progressPercent, progressStep, i);
-      }
-
-      for (let { fileName, localFilePath, index } of localFilesToUpload) {
-        await uploadTask(selectedFiles, statusSummary, index, fileName, localFilePath);
-      }
-
-      progressPercent.value = Math.ceil(progressPercent.value);
-      statusSummary.value = "Process complete";
-      uploadStatus.value = uploadState.COMPLETED;
-
-    }
-
-
-    async function retryUpload() {
-      uploadStatus.value = uploadState.IN_PROGRESS;
-      progressPercent.value = 1;
-      statusSummary.value = "";
-      let progressStep = Math.round(100 / (failuresFilesList.value.length));
-
-      for (let i = 0; i < failuresFilesList.value.length; i++) {
-        uploadTask(failuresFilesList, statusSummary, i, failuresFilesList.value[i].name, failuresFilesList.value[i].path);
-        progressPercent.value += progressStep;
-      }
-
-      progressPercent.value = Math.ceil(progressPercent.value);
-      statusSummary.value = "Process complete";
-      uploadStatus.value = uploadState.COMPLETED;
-    }
-
     return {
       selectedFiles,
       progressPercent,
