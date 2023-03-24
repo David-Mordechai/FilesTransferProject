@@ -213,7 +213,7 @@ export default {
 #sideBar {
   grid-area: side-bar;
   width: 150px;
-  background-color: #1c1c1cc0;
+  /* background-color: #1c1c1cc0; */
 }
 
 #main {
@@ -235,8 +235,8 @@ export default {
 
 header,
 footer {
-  background-color: #1c1c1cd9;
-  color: whitesmoke;
+  /* background-color: #1c1c1cd9;
+  color: whitesmoke; */
   width: 100%;
   height: 36px;
 }
