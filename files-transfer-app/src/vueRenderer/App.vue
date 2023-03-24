@@ -6,16 +6,18 @@
   <div id="mainWrapper">
     <div id="sideBar">
       <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
-        :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
+        @OpenFailures="OpenFailures" :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
     <div id="main">
-      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent" />
-      <div class="center" v-if="selectedFiles.length === 0">
+      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent"
+        v-show="openFailure === false" />
+      <div class="center" v-if="selectedFiles.length === 0 && openFailure !== true">
         Choose files to upload...
       </div>
+      <Failures v-if="openFailure === true" :failuresFilesList="failuresFilesList" @retryUpload="retryUpload" />
 
-      <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
-        @removeFile="removeFile" />
+      <FilesListTable v-if="selectedFiles.length > 0 && openFailure === false" :selectedFiles="selectedFiles"
+        :uploadStat="uploadStatus" @removeFile="removeFile" />
     </div>
   </div>
 
@@ -35,21 +37,22 @@ import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import {
-  uploadFile,
-  copyFileToLocalFolder,
-  deleteFileFromSourceFolder,
+  uploadFilesFunction, retryUploadFunction
 } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
+import Failures from "./components/Failures.vue";
 const { unionBy } = require("lodash");
 const electron = require("electron");
 const ipc = electron.ipcRenderer;
 
 export default {
   name: "App",
-  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo },
+  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, Failures },
   setup() {
     const config = ref({});
     config.value = ipc.sendSync("getConfig");
+
+    const failuresFilesList = ref([]);
     const localRootFolder = config.value.localRootFolder;
 
     const platforms = ref(config.value.platforms);
@@ -63,6 +66,8 @@ export default {
     const statusSummary = ref("");
     const uploadStatus = ref(uploadState.NONE);
 
+    const openFailure = ref(false);
+
     function reset() {
       progressPercent.value = 0;
       statusSummary.value = "";
@@ -70,7 +75,14 @@ export default {
       uploadStatus.value = uploadState.NONE;
       platformInfoComponent.value.reset();
     }
+    function OpenFailures(failuresFiles) {
+      if (openFailure.value)
+        openFailure.value = false;
+      else openFailure.value = true;
 
+      console.log(failuresFiles);
+      failuresFilesList.value = failuresFiles;
+    }
     watch(
       [selectedFiles, selectedPlatform, selectedTailNumber],
       ([newFiles, newPlatform, newTailNumber]) => {
@@ -124,61 +136,19 @@ export default {
       );
     }
 
-    async function uploadFiles() {
-      uploadStatus.value = uploadState.IN_PROGRESS;
-      progressPercent.value = 1;
-      statusSummary.value = "";
-      let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
-
-      let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
-      let localFilesToUpload = [];
-      for (let i = 0; i < selectedFiles.value.length; i++) {
-
-        statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
-        let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
-          selectedFiles.value[i],
-          localFolder
-        );
-        if (copyStatus === false) {
-          statusSummary.value = copyError;
-          selectedFiles.value[i].copied = actionStatus.FAILURE;
-          continue;
-        } else {
-          localFilesToUpload.push({ fileName: selectedFiles.value[i].name, localFilePath, index: i });
-          selectedFiles.value[i].copied = actionStatus.SUCCESS;
-          progressPercent.value += progressStep;
-        }
-
-        statusSummary.value = `Deleting file: ${selectedFiles.value[i].name} from source folder`;
-        let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
-          selectedFiles.value[i]
-        );
-        if (deleteStatus === false) {
-          statusSummary.value = deleteError;
-          selectedFiles.value[i].deleted = actionStatus.FAILURE;
-        } else {
-          selectedFiles.value[i].deleted = actionStatus.SUCCESS;
-          progressPercent.value += progressStep;
-        }
-      }
-
-      for (let { fileName, localFilePath, index } of localFilesToUpload) {
-        statusSummary.value = `Uploading file: ${fileName}`;
-        let { uploadStatus, uploadError } = await uploadFile(fileName, localFilePath);
-        if (uploadStatus === false) {
-          statusSummary.value = uploadError;
-          selectedFiles.value[index].uploaded = actionStatus.FAILURE
-        } else {
-          selectedFiles.value[index].uploaded = actionStatus.SUCCESS
-          progressPercent.value += progressStep;
-        }
-      }
-
-      progressPercent.value = Math.ceil(progressPercent.value);
-      statusSummary.value = "Process complete";
-      uploadStatus.value = uploadState.COMPLETED;
+    function uploadFiles() {
+      uploadFilesFunction(uploadStatus,
+        progressPercent,
+        statusSummary,
+        selectedFiles,
+        selectedPlatform,
+        selectedTailNumber,
+        localRootFolder)
     }
 
+    function retryUpload() {
+      retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
+    }
     return {
       selectedFiles,
       progressPercent,
@@ -191,9 +161,15 @@ export default {
       uploadFiles,
       removeFile,
       reset,
+      retryUpload,
+      openFailure,
+      OpenFailures, failuresFilesList
     };
-  },
-};
+
+  }
+}
+
+
 </script>
 
 <style>
