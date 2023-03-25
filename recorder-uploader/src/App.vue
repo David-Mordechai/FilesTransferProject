@@ -204,21 +204,21 @@ export default {
 #mainWrapper {
   display: grid;
   grid-template-areas:
-    "header header"
-    "side-bar main-side"
-    "footer footer";
-  grid-template-columns: 150px 1fr;
+    "header header header"
+    "side-bar main-side main-side"
+    "footer footer footer";
+  grid-template-columns: 200px 1fr;
 }
 
 #sideBar {
   grid-area: side-bar;
-  width: 150px;
-  /* background-color: #1c1c1cc0; */
+  width: 200px;
+  background-color: #191d21;
 }
 
 #main {
   grid-area: main-side;
-  /* padding: 10px; */
+  background-color: #1d2026;
   width: 100%;
   height: calc(100vh - 72px);
   overflow-y: auto;
@@ -239,6 +239,12 @@ footer {
   color: whitesmoke; */
   width: 100%;
   height: 36px;
+}
+header{
+  background-color: #1900ff;
+}
+footer{
+  background-color: #161a1f;
 }
 
 .status-bar {
