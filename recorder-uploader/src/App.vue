@@ -172,32 +172,55 @@ export default {
 </script>
 
 <template>
-  <header id="header">
-    <TitleBar appName="Recorder Uploader" />
-  </header>
+  <!-- <header id="header">
+      <TitleBar appName="Recorder Uploader" />
+    </header> -->
 
-  <div id="mainWrapper">
-    <div id="sideBar">
-      <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
-        :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
-    </div>
-    <div id="main">
-      <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent" />
-      <div class="center" v-if="selectedFiles.length === 0">
-        Choose files to upload...
+  <!-- <div id="mainWrapper">
+      <div id="sideBar">
+        <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
+          :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
       </div>
+      <div id="main">
+        <PlatformInfo class="platformInfo" :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"
+          ref="platformInfoComponent" />
+        <div class="center" v-if="selectedFiles.length === 0">
+          Choose files to upload...
+        </div>
 
-      <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
-        @removeFile="removeFile" />
+        <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
+          @removeFile="removeFile" />
+      </div>
     </div>
-  </div>
 
-  <footer id="footer">
-    <div class="status-bar">
-      <div class="status-summary">{{ statusSummary }}</div>
-      <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
-    </div>
-  </footer>
+    <footer id="footer">
+      <div class="status-bar">
+        <div class="status-summary">{{ statusSummary }}</div>
+        <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
+      </div>
+    </footer> -->
+
+  <v-card>
+    <v-layout>
+      <v-navigation-drawer  permanent>
+        <v-list density="compact" nav>
+          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
+          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
+        </v-list>
+        
+      </v-navigation-drawer>
+      <v-main>
+        <div id="main">
+          <PlatformInfo class="platformInfo" :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"
+            ref="platformInfoComponent" />
+          <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
+          :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
+          <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
+            @removeFile="removeFile" />
+        </div>
+      </v-main>
+    </v-layout>
+  </v-card>
 </template>
 
 <style>
@@ -210,18 +233,24 @@ export default {
   grid-template-columns: 200px 1fr;
 }
 
-#sideBar {
+/* #sideBar {
   grid-area: side-bar;
   width: 200px;
   background-color: #191d21;
-}
+} */
 
 #main {
   grid-area: main-side;
-  background-color: #1d2026;
+  /* background-color: #1d2026; */
   width: 100%;
-  height: calc(100vh - 72px);
+  height: 100vh;
   overflow-y: auto;
+}
+
+.platformInfo {
+  width: 98%;
+  padding: 10px;
+  margin: auto;
 }
 
 .center {

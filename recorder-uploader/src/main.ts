@@ -5,7 +5,7 @@ import './samples/node-api'
 
 // Vuetify
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import { createVuetify, ThemeDefinition } from 'vuetify'
 import * as labs from 'vuetify/labs/components'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
@@ -15,7 +15,13 @@ import { aliases, mdi } from "vuetify/lib/iconsets/mdi";
 // make sure to also import the coresponding css
 import "@mdi/font/css/materialdesignicons.css"; // Ensure you are using css-loader
 import "@fortawesome/fontawesome-free/css/all.css"; // Ensure your project is capable of handling css files
-
+const myCustomLightTheme: ThemeDefinition = {
+  dark: true,
+  colors: {
+    primary: '#2196F3',
+    secondary: '#03DAC6',
+  }
+}
 
 const vuetify = createVuetify({
   components: {
@@ -25,7 +31,10 @@ const vuetify = createVuetify({
   },
   directives,
   theme: {
-    defaultTheme: 'dark'
+    defaultTheme: 'myCustomLightTheme',
+    themes: {
+      myCustomLightTheme,
+    }
   },
   icons: {
     defaultSet: "mdi",

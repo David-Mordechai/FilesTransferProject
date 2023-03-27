@@ -1,12 +1,12 @@
 <template>
   <div class="buttonsWrapper">
-    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="selectFiles" :disabled="selectFilesButtonDisabled">
+    <v-btn  rounded="sm"  color="primary" @click="selectFiles" :disabled="selectFilesButtonDisabled">
       Choose Files
     </v-btn>
-    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">
+    <v-btn  rounded="sm"  color="primary" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">
       Upload
     </v-btn>
-    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="reset" :disabled="resetButtonDisabled">
+    <v-btn  rounded="sm"  color="primary" @click="reset" :disabled="resetButtonDisabled">
       Reset
     </v-btn>
   </div>
@@ -64,7 +64,7 @@ export default {
 </script>
 
 <style scoped>
-.btnSideBar {
+/* .btnSideBar {
   height: 140px;
   width: 140px;
   margin: 0 5px;
@@ -80,5 +80,11 @@ export default {
 }
 .v-btn{
   justify-content: left;
+} */
+.buttonsWrapper{
+  margin-left: 10px;
+}
+.v-btn{
+  margin-right: 10px;
 }
 </style>

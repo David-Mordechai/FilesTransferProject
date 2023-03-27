@@ -1,7 +1,7 @@
 <template>
   <div class="dataTableWrapper">
-    <v-data-table-virtual v-model="selected" :headers="headers" :items="files" item-value="name" show-select
-      style="--v-theme-surface: transparent;font-size: 90%;--v-table-row-height:auto;" class="elevation-0">
+    <v-data-table-virtual :headers="headers" :items="files" item-value="name" 
+       class="dataTable">
       <template class="cellWidth"  v-slot:item.size="{ item }">
         {{ formatSize(item.raw.size) }}
       </template>
@@ -78,19 +78,18 @@ export default {
       context.emit("removeFile", path);
     }
 
-    let selected = ref([])
     const headers = [
+      { title: '', key: 'actions', sortable: false, width: '40px' },
       {
         title: 'File Name',
         align: 'start',
         sortable: true,
         key: 'name',
       },
-      { title: 'Size', key: 'size' },
-      { title: 'Copied', key: 'copied' },
-      { title: 'Deleted', key: 'deleted' },
-      { title: 'Uploaded', key: 'uploaded' },
-      { title: 'Actions', key: 'actions', sortable: false },
+      { title: 'Size', key: 'size', width: '100px' },
+      { title: 'Copied', key: 'copied', width: '100px'},
+      { title: 'Deleted', key: 'deleted', width: '100px' },
+      { title: 'Uploaded', key: 'uploaded', width: '100px' },
     ]
 
     return {
@@ -99,7 +98,6 @@ export default {
       formatSize,
       remove,
       statusClass,
-      selected,
       headers,
     };
   },
@@ -108,37 +106,16 @@ export default {
 
 <style scoped>
 .dataTableWrapper {
-  width: 95%;
-  margin: auto;
+  width: 100%;
 }
-
-table {
-  font-size: large;
+.dataTable{
+  --v-theme-surface: transparent;
+  font-size: 90%;
+  --v-table-row-height:3em !important;
+  --v-table-header-height:3em !important;
 }
- th {
-  width: 100px;
-}
-
-.th-name {
-  width: auto;
-}
-
 .regular {
   color: inherit;
-}
-
-.th-remove {
-  width: 40px;
-}
-
-.removeBtn {
-  cursor: pointer;
-}
-
-.removeBtn>svg {
-  width: 20px;
-  height: 20px;
-  fill: red;
 }
 
 .success {
