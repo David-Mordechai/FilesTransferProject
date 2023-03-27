@@ -16,15 +16,6 @@
   margin: 0;
 }
 
-body {
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

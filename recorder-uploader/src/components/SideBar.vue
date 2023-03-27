@@ -1,10 +1,15 @@
 <template>
-  <button class="btnSideBar btn btn-primary" @click="selectFiles" :disabled="selectFilesButtonDisabled">Choose
-    Files</button>
-
-  <button class="btnSideBar btn btn-success" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">Upload</button>
-
-  <button class="btnSideBar btn btn-primary" @click="reset" :disabled="resetButtonDisabled">Reset</button>
+  <div class="buttonsWrapper">
+    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="selectFiles" :disabled="selectFilesButtonDisabled">
+      Choose Files
+    </v-btn>
+    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">
+      Upload
+    </v-btn>
+    <v-btn prepend-icon="mdi-vuetify" variant="text" @click="reset" :disabled="resetButtonDisabled">
+      Reset
+    </v-btn>
+  </div>
 </template>
 
 <script lang="ts">
@@ -64,5 +69,16 @@ export default {
   width: 140px;
   margin: 0 5px;
   margin-top: 5px;
+}
+
+.buttonsWrapper{
+  width: 95%;
+  margin: auto;
+}
+.buttonsWrapper > button{
+  width: 100%;
+}
+.v-btn{
+  justify-content: left;
 }
 </style>

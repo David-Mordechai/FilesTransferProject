@@ -228,23 +228,15 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80%;
+  height: 60%;
   font-size: xx-large;
   color: darkgray;
 }
 
 header,
 footer {
-  /* background-color: #1c1c1cd9;
-  color: whitesmoke; */
   width: 100%;
   height: 36px;
-}
-header{
-  background-color: #1900ff;
-}
-footer{
-  background-color: #161a1f;
 }
 
 .status-bar {

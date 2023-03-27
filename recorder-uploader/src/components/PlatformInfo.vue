@@ -1,5 +1,5 @@
 <template>
-    <div class="container was-validated">
+    <!-- <div class="container was-validated">
         <div class="row">
             <div class="col">
                 <div class="input-group mb-3">
@@ -20,7 +20,18 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
+    <v-container style="--v-theme-surface: transparent;">
+        <v-row>
+            <v-col>
+                <v-text-field v-model="tailNumber" :rules="tailNumberRules" label="Tail Number" required></v-text-field>
+            </v-col>
+            <v-col>
+                <v-select v-model="selectedPlatform" :items="platformsList" item-title="value" item-value="key"
+                    label="Platform" persistent-hint return-object single-line></v-select>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <script lang="ts">
@@ -32,7 +43,7 @@ export default {
     setup(props, context) {
         const platformsList = ref(props.platforms);
         const tailNumber = ref()
-        const selectedPlatform = ref('')
+        const selectedPlatform = ref()
 
         let isValid = ref(false)
         isValid = computed(() => {
@@ -40,6 +51,11 @@ export default {
             const validPlatform = selectedPlatform.value !== '';
             return validTailNumber && validPlatform;
         });
+
+        const tailNumberRules = [
+            (v: number) => !!v || 'Tail number is required',
+            (v: number) => (v > 99 && v < 1000) || 'Tail # between 100 to 9999',
+        ]
 
         watch(isValid, async (newValue) => {
             if (newValue) {
@@ -59,14 +75,15 @@ export default {
             platformsList,
             tailNumber,
             selectedPlatform,
-            reset
+            reset,
+            tailNumberRules
         }
     }
 }
 </script>
 
 <style scoped>
-.col{
+.col {
     display: inline-block;
 }
 </style>

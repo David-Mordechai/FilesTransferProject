@@ -7,6 +7,7 @@ import './samples/node-api'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as labs from 'vuetify/labs/components'
+import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import 'vuetify/styles'
 import { fa } from "vuetify/iconsets/fa";
@@ -18,7 +19,9 @@ import "@fortawesome/fontawesome-free/css/all.css"; // Ensure your project is ca
 
 const vuetify = createVuetify({
   components: {
-    ...labs
+    ...labs,
+    ...components
+    
   },
   directives,
   theme: {
