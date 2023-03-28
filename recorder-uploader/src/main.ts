@@ -19,8 +19,8 @@ const myCustomLightTheme: ThemeDefinition = {
   dark: true,
   colors: {
     primary: '#2196F3',
-    secondary: '#03DAC6',
-  }
+    secondary: '#263238',
+  },
 }
 
 const vuetify = createVuetify({

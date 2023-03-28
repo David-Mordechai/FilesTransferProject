@@ -19,7 +19,7 @@ export const uploadFile = async (fileName: string, localFilePath: string) => {
     }
 }
 
-export const copyFileToLocalFolder = (file: any, localRootFolder: string) => {
+export const copyFileToLocalFolder = async (file: any, localRootFolder: string) => {
     let localFilePath: string = `${localRootFolder}${file.name}`
     try {
 
@@ -37,7 +37,7 @@ export const copyFileToLocalFolder = (file: any, localRootFolder: string) => {
     }
 }
 
-export const deleteFileFromSourceFolder = (file: any) => {
+export const deleteFileFromSourceFolder = async (file: any) => {
     try {
 
         if (!fs.existsSync(file.path)) {

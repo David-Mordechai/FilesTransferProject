@@ -1,3 +1,50 @@
+<template>
+  <v-card>
+    <v-layout>
+      <v-navigation-drawer permanent>
+        <v-list density="compact" nav>
+          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
+          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+      <v-main>
+        <div id="main">
+          <v-container>
+            <v-row>
+              <v-col>
+                <PlatformInfo class="platformInfo" :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"
+                  ref="platformInfoComponent" />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
+                  :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
+              </v-col>
+            </v-row>
+            <v-row v-if="selectedFiles.length > 0">
+              <v-col>
+                <v-card color="secondary">
+
+                  <div class="status-bar">
+                    <div class="status-summary">{{ statusSummary }}</div>
+                    <ProgressBar class="status-progressBar" :total="progressTotal" :current="progressCurrent" />
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-row v-if="selectedFiles.length > 0">
+              <v-col>
+                <FilesListTable :selectedFiles="selectedFiles" :uploadStat="uploadStatus" @removeFile="removeFile" />
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </v-main>
+    </v-layout>
+  </v-card>
+</template>
+
 <script lang="ts">
 import { ref, watch } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
@@ -14,7 +61,6 @@ import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
 import { config } from './models/config';
-import { uploadFileModel } from "./models/uploadFileModel";
 
 export default {
   name: "App",
@@ -32,13 +78,16 @@ export default {
     const selectedFiles = ref();
     selectedFiles.value = []
 
-    const progressPercent = ref(0);
+    const progressTotal = ref(0);
+    const progressCurrent = ref(0);
+
     const statusSummary = ref();
     const uploadStatus = ref();
     uploadStatus.value = uploadState.NONE;
 
     function reset() {
-      progressPercent.value = 0;
+      progressTotal.value = 0;
+      progressCurrent.value = 0;
       statusSummary.value = "";
       selectedFiles.value = [];
       uploadStatus.value = uploadState.NONE;
@@ -75,18 +124,18 @@ export default {
         };
       });
 
+      progressTotal.value = newFiles.length;
+
       selectedFiles.value = unionBy(newFiles, selectedFiles.value, "path").sort(
         function (a: any, b: any) {
-          const nameA = a.name.toUpperCase(); // ignore upper and lowercase
-          const nameB = b.name.toUpperCase(); // ignore upper and lowercase
-          // sort in an ascending order
+          const nameA = a.name.toUpperCase(); 
+          const nameB = b.name.toUpperCase();
           if (nameA < nameB) {
             return -1;
           }
           if (nameA > nameB) {
             return 1;
           }
-          // names must be equal
           return 0;
         }
       );
@@ -100,16 +149,13 @@ export default {
 
     async function uploadFiles() {
       uploadStatus.value = uploadState.IN_PROGRESS;
-      progressPercent.value = 1;
       statusSummary.value = "";
-      let progressStep = Math.round(100 / (selectedFiles.value.length * 3));
 
       let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
-      let localFilesToUpload: uploadFileModel[] = [];
       for (let i = 0; i < selectedFiles.value.length; i++) {
-
+        progressCurrent.value = i + 1;
         statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
-        let { copyStatus, copyError, localFilePath } = copyFileToLocalFolder(
+        let { copyStatus, copyError, localFilePath } = await copyFileToLocalFolder(
           selectedFiles.value[i],
           localFolder
         );
@@ -118,13 +164,11 @@ export default {
           selectedFiles.value[i].copied = actionStatus.FAILURE;
           continue;
         } else {
-          localFilesToUpload.push({ name: selectedFiles.value[i].name, path: localFilePath, sourceIndex: i });
           selectedFiles.value[i].copied = actionStatus.SUCCESS;
-          progressPercent.value += progressStep;
         }
 
         statusSummary.value = `Deleting file: ${selectedFiles.value[i].name} from source folder`;
-        let { deleteStatus, deleteError } = deleteFileFromSourceFolder(
+        let { deleteStatus, deleteError } = await deleteFileFromSourceFolder(
           selectedFiles.value[i]
         );
         if (deleteStatus === false) {
@@ -132,30 +176,26 @@ export default {
           selectedFiles.value[i].deleted = actionStatus.FAILURE;
         } else {
           selectedFiles.value[i].deleted = actionStatus.SUCCESS;
-          progressPercent.value += progressStep;
         }
-      }
 
-      for (let { name, path, sourceIndex } of localFilesToUpload) {
-        statusSummary.value = `Uploading file: ${name}`;
-        let { uploadStatus, uploadError } = await uploadFile(name, path);
+        statusSummary.value = `Uploading file: ${selectedFiles.value[i].name}`;
+        let { uploadStatus, uploadError } = await uploadFile(selectedFiles.value[i].name, localFilePath);
         if (uploadStatus === false) {
           statusSummary.value = uploadError;
-          selectedFiles.value[sourceIndex].uploaded = actionStatus.FAILURE
+          selectedFiles.value[i].uploaded = actionStatus.FAILURE
         } else {
-          selectedFiles.value[sourceIndex].uploaded = actionStatus.SUCCESS
-          progressPercent.value += progressStep;
+          selectedFiles.value[i].uploaded = actionStatus.SUCCESS
         }
       }
 
-      progressPercent.value = Math.ceil(progressPercent.value);
       statusSummary.value = "Process complete";
       uploadStatus.value = uploadState.COMPLETED;
     }
 
     return {
       selectedFiles,
-      progressPercent,
+      progressTotal,
+      progressCurrent,
       statusSummary,
       uploadStatus,
       platforms,
@@ -171,114 +211,22 @@ export default {
 
 </script>
 
-<template>
-  <!-- <header id="header">
-      <TitleBar appName="Recorder Uploader" />
-    </header> -->
-
-  <!-- <div id="mainWrapper">
-      <div id="sideBar">
-        <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
-          :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
-      </div>
-      <div id="main">
-        <PlatformInfo class="platformInfo" :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"
-          ref="platformInfoComponent" />
-        <div class="center" v-if="selectedFiles.length === 0">
-          Choose files to upload...
-        </div>
-
-        <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
-          @removeFile="removeFile" />
-      </div>
-    </div>
-
-    <footer id="footer">
-      <div class="status-bar">
-        <div class="status-summary">{{ statusSummary }}</div>
-        <ProgressBar class="status-progressBar" :progressPercent="progressPercent" />
-      </div>
-    </footer> -->
-
-  <v-card>
-    <v-layout>
-      <v-navigation-drawer  permanent>
-        <v-list density="compact" nav>
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
-          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
-        </v-list>
-        
-      </v-navigation-drawer>
-      <v-main>
-        <div id="main">
-          <PlatformInfo class="platformInfo" :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"
-            ref="platformInfoComponent" />
-          <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
-          :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
-          <FilesListTable v-if="selectedFiles.length > 0" :selectedFiles="selectedFiles" :uploadStat="uploadStatus"
-            @removeFile="removeFile" />
-        </div>
-      </v-main>
-    </v-layout>
-  </v-card>
-</template>
-
 <style>
-#mainWrapper {
-  display: grid;
-  grid-template-areas:
-    "header header header"
-    "side-bar main-side main-side"
-    "footer footer footer";
-  grid-template-columns: 200px 1fr;
-}
-
-/* #sideBar {
-  grid-area: side-bar;
-  width: 200px;
-  background-color: #191d21;
-} */
-
 #main {
-  grid-area: main-side;
-  /* background-color: #1d2026; */
   width: 100%;
   height: 100vh;
   overflow-y: auto;
 }
 
-.platformInfo {
-  width: 98%;
-  padding: 10px;
-  margin: auto;
-}
-
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 60%;
-  font-size: xx-large;
-  color: darkgray;
-}
-
-header,
-footer {
-  width: 100%;
-  height: 36px;
-}
-
 .status-bar {
   display: grid;
   grid-template-areas: "f1 f1 f2";
-  height: 100%;
   place-items: center;
 }
 
 .status-progressBar {
   grid-area: f2;
   justify-self: end;
-  width: 200px;
   margin-right: 10px;
 }
 
