@@ -8,6 +8,11 @@
 
   <button class="btnSideBar btn btn-danger" @click="openFailures" v-if="failuresIsDisplay">
     Failures {{ failuresFilesCounter }}</button>
+
+
+  <router-link :to="{ name: 'Export' }" class="btnSideBar btn btn-success">EXPORT</router-link>
+
+  <router-link :to="{ name: 'Import' }" class="btnSideBar btn btn-primary">IMPORT</router-link>
 </template>
 
 <script>
@@ -47,6 +52,7 @@ export default {
     const failuresIsDisplay = computed(() => {
       return props.uploadStat !== uploadState.IN_PROGRESS && failuresFilesCounter.value > 0
     })
+
     function selectFiles() {
       let newFiles = ipc.sendSync("choose-files");
       context.emit("updateSelectedFileList", newFiles);
@@ -64,6 +70,7 @@ export default {
       let failuresFiles = ipc.sendSync("failure-files");
       context.emit("OpenFailures", failuresFiles)
     }
+
     return {
       files,
       selectFilesButtonDisabled,
@@ -81,9 +88,10 @@ export default {
 
 <style scoped>
 .btnSideBar {
-  height: 140px;
-  width: 140px;
-  margin: 0 5px;
-  margin-top: 5px;
+  height: 50px;
+  width: 145px;
+  margin: 0 2px;
+  margin-top: 4px;
+  padding: 10px;
 }
 </style>

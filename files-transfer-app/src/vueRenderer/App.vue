@@ -8,16 +8,18 @@
       <SideBar @updateSelectedFileList="updateSelectedFileList" @uploadFiles="uploadFiles" @reset="reset"
         @OpenFailures="OpenFailures" :selectedFiles="selectedFiles" :uploadStat="uploadStatus" />
     </div>
-    <div id="main">
+    <div id="main1" v-if="Routes === false">
       <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo" ref="platformInfoComponent"
         v-show="openFailure === false" />
-      <div class="center" v-if="selectedFiles.length === 0 && openFailure !== true">
+      <div class="center" v-if="selectedFiles.length === 0 && openFailure === false">
         Choose files to upload...
       </div>
       <Failures v-if="openFailure === true" :failuresFilesList="failuresFilesList" @retryUpload="retryUpload" />
-
       <FilesListTable v-if="selectedFiles.length > 0 && openFailure === false" :selectedFiles="selectedFiles"
         :uploadStat="uploadStatus" @removeFile="removeFile" />
+    </div>
+    <div id="main2" v-if="Routes === true">
+      <RouterView></RouterView>
     </div>
   </div>
 
@@ -67,7 +69,7 @@ export default {
     const uploadStatus = ref(uploadState.NONE);
 
     const openFailure = ref(false);
-
+    const Routes = ref(true);
     function reset() {
       progressPercent.value = 0;
       statusSummary.value = "";
@@ -75,14 +77,14 @@ export default {
       uploadStatus.value = uploadState.NONE;
       platformInfoComponent.value.reset();
     }
+
     function OpenFailures(failuresFiles) {
-      if (openFailure.value)
-        openFailure.value = false;
-      else openFailure.value = true;
+      openFailure.value = !openFailure.value;
 
       console.log(failuresFiles);
       failuresFilesList.value = failuresFiles;
     }
+
     watch(
       [selectedFiles, selectedPlatform, selectedTailNumber],
       ([newFiles, newPlatform, newTailNumber]) => {
@@ -136,8 +138,8 @@ export default {
       );
     }
 
-    function uploadFiles() {
-      uploadFilesFunction(uploadStatus,
+    async function uploadFiles() {
+      await uploadFilesFunction(uploadStatus,
         progressPercent,
         statusSummary,
         selectedFiles,
@@ -146,9 +148,19 @@ export default {
         localRootFolder)
     }
 
-    function retryUpload() {
-      retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
+    async function retryUpload() {
+      await retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
+      let failuresFiles = ipc.sendSync("failure-files");
+
+      failuresFilesList.value = failuresFiles;
+
+      if (failuresFilesList.value.length === 0) {
+        openFailure.value = false;
+        reset();
+
+      }
     }
+
     return {
       selectedFiles,
       progressPercent,
@@ -163,7 +175,8 @@ export default {
       reset,
       retryUpload,
       openFailure,
-      OpenFailures, failuresFilesList
+      OpenFailures, failuresFilesList,
+      Routes
     };
 
   }
@@ -198,7 +211,15 @@ body {
   background-color: #1c1c1cc0;
 }
 
-#main {
+#main1 {
+  grid-area: main-side;
+  padding: 10px;
+  width: 100%;
+  height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+
+#main2 {
   grid-area: main-side;
   padding: 10px;
   width: 100%;

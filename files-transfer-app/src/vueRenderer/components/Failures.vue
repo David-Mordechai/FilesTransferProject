@@ -7,6 +7,9 @@
                     <th class="th-name">File Name</th>
                     <th>Size</th>
                     <th>Path</th>
+                    <th>Retry</th>
+
+
                 </tr>
             </thead>
             <tbody>
@@ -14,6 +17,8 @@
                     <td>{{ file.name }}</td>
                     <td>{{ formatSize(file.size) }}</td>
                     <td>{{ file.path }}</td>
+                    <td :class="statusClass(file.uploaded)">{{ file.uploaded }}</td>
+
                 </tr>
             </tbody>
         </table>
@@ -24,6 +29,8 @@
 
 <script>
 import { computed } from '@vue/reactivity';
+import { actionStatus } from '../services/enums'
+
 export default {
     name: `Failures`,
     props: ['failuresFilesList'],
@@ -42,13 +49,25 @@ export default {
                 " " +
                 ["B", "kB", "MB", "GB", "TB"][i]);
         }
+
+        function statusClass(status) {
+            switch (status) {
+                case actionStatus.SUCCESS:
+                    return "success";
+                case actionStatus.FAILURE:
+                    return "failure";
+                default:
+                    return "regular";
+            }
+        }
         function retry() {
             context.emit("retryUpload");
         }
         return {
             files,
             formatSize,
-            retry
+            retry,
+            statusClass
         }
     }
 }
