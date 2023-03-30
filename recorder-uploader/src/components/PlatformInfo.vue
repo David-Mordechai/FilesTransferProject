@@ -1,25 +1,15 @@
 <template>
-    <div class="container was-validated">
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="inputPlatform">Platform</label>
-                    <select class="form-select" required id="inputPlatform" v-model="selectedPlatform">
-                        <option value="" selected>Choose...</option>
-                        <option v-for="platform in platformsList" :key="platform.key" :value="platform.key">
-                            {{ platform.value }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1">Tail #</span>
-                    <input type="number" class="form-control" min="100" max="9999" placeholder="Between 100 to 9999"
-                        required aria-label="Username" aria-describedby="basic-addon1" v-model="tailNumber">
-                </div>
-            </div>
-        </div>
+    <div class="">
+        <v-row >
+            <v-col>
+                <v-text-field v-model="tailNumber" :rules="tailNumberRules" label="Tail Number" required
+                    density="compact"></v-text-field>
+            </v-col>
+            <v-col>
+                <v-select v-model="selectedPlatform" :items="platformsList" item-title="value" item-value="key" clearable
+                    density="compact" label="Choose Platform" persistent-hint  single-line></v-select>
+            </v-col>
+        </v-row>
     </div>
 </template>
 
@@ -32,17 +22,33 @@ export default {
     setup(props, context) {
         const platformsList = ref(props.platforms);
         const tailNumber = ref()
-        const selectedPlatform = ref('')
+        const selectedPlatform = ref()
 
         let isValid = ref(false)
         isValid = computed(() => {
-            const validTailNumber = tailNumber.value && tailNumber.value > 99 && tailNumber.value < 10000;
+            if(!tailNumber.value) return false;
+            if(!selectedPlatform.value) return false;
+
+            const validTailNumber = tailNumber.value > 99 && tailNumber.value < 10000;
             const validPlatform = selectedPlatform.value !== '';
+            console.log(`is valid ${validTailNumber && validPlatform}`);
+            console.log(`platform ${selectedPlatform.value}`);
+            console.log(`tail ${tailNumber.value}`);
+            
             return validTailNumber && validPlatform;
         });
 
-        watch(isValid, async (newValue) => {
+        const tailNumberRules = [
+            (v: number) => !!v || 'Tail number is required',
+            (v: number) => (v > 99 && v < 10000) || 'Tail # between 100 to 9999',
+        ]
+
+        watch(isValid, (newValue) => {
+            // if(oldValue === newValue) return;
+
             if (newValue) {
+                console.log(`updatePlatformInfo: platform:${selectedPlatform.value}, tail: ${tailNumber.value}`);
+                
                 context.emit('updatePlatformInfo', selectedPlatform.value, tailNumber.value)
             }
             else {
@@ -59,14 +65,12 @@ export default {
             platformsList,
             tailNumber,
             selectedPlatform,
-            reset
+            reset,
+            tailNumberRules
         }
     }
 }
 </script>
 
 <style scoped>
-.col{
-    display: inline-block;
-}
 </style>

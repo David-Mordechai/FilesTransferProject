@@ -49,8 +49,9 @@ async function createWindow() {
     minWidth: 1200,
     height: 650,
     minHeight: 650,
-    frame: false,
+    frame: true,
     show: false,
+    
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -61,6 +62,7 @@ async function createWindow() {
     },
   })
 
+  win.menuBarVisible = false;
   win.on('ready-to-show', async () => {
     win.show();
   })

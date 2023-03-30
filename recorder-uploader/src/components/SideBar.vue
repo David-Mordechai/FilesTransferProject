@@ -1,10 +1,15 @@
 <template>
-  <button class="btnSideBar btn btn-primary" @click="selectFiles" :disabled="selectFilesButtonDisabled">Choose
-    Files</button>
-
-  <button class="btnSideBar btn btn-success" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">Upload</button>
-
-  <button class="btnSideBar btn btn-primary" @click="reset" :disabled="resetButtonDisabled">Reset</button>
+  <div class="buttonsWrapper">
+    <v-btn  rounded="sm"  color="primary" @click="selectFiles" :disabled="selectFilesButtonDisabled">
+      Choose Files
+    </v-btn>
+    <v-btn  rounded="sm"  color="primary" @click="uploadFiles" :disabled="uploadFilesButtonDisabled">
+      Upload
+    </v-btn>
+    <v-btn  rounded="sm"  color="error" @click="reset" :disabled="resetButtonDisabled">
+      Reset
+    </v-btn>
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,10 +64,8 @@ export default {
 </script>
 
 <style scoped>
-.btnSideBar {
-  height: 140px;
-  width: 140px;
-  margin: 0 5px;
-  margin-top: 5px;
+
+.v-btn {
+  margin-right: 10px;
 }
 </style>
