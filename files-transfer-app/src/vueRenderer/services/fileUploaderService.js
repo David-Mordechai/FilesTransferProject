@@ -28,13 +28,8 @@ export const copyFileToLocalFolder = (sourceFile, targetFile, destFolder) => {
   //   let localFilePath = `${localRootFolder}${file.name}`;
   try {
     if (!fs.existsSync(destFolder)) {
-      console.log("create");
       fs.mkdirSync(destFolder, { recursive: true });
-      console.log("mkdir");
     }
-    console.log(sourceFile);
-    console.log(targetFile);
-    console.log(destFolder);
 
     fs.copyFileSync(sourceFile, targetFile);
 
@@ -50,7 +45,6 @@ export const copyFileToLocalFolder = (sourceFile, targetFile, destFolder) => {
 
 export const deleteFileFromSourceFolder = (file) => {
   try {
-    console.log(file.path);
     if (!fs.existsSync(file.path)) {
       return { deleteStatus: true };
     }
@@ -68,7 +62,6 @@ export const deleteFileFromSourceFolder = (file) => {
 
 export const deleteUploadFileFromSourceFolder = (file) => {
   try {
-    console.log(file);
     if (!fs.existsSync(file)) {
       return { deleteStatus: true };
     }
@@ -98,7 +91,6 @@ export async function uploadTask(
     files.value[index].uploaded = actionStatus.FAILURE;
   } else {
     files.value[index].uploaded = actionStatus.SUCCESS;
-    console.log(filePath);
     deleteUploadFileFromSourceFolder(filePath);
   }
 }
@@ -143,7 +135,6 @@ export const copyFileTask = (
   if (!fs.existsSync(inProgressPath)) {
     fs.mkdirSync(inProgressPath, { recursive: true });
   }
-  console.log(inProgressPath);
   let { copyStatus, copyError } = copyFileToLocalFolder(
     files.value[index].path,
     finalFile,
@@ -158,7 +149,6 @@ export const copyFileTask = (
       localFilePath: targetFile,
       index: index,
     });
-    console.log(localFilesToUpload);
     files.value[index].copied = actionStatus.SUCCESS;
     progressPercent.value += progressStep;
   }
@@ -170,41 +160,44 @@ export const copyFileToBackupTask = (
   destFolder,
   localFilesToUpload,
   fullName,
+  date,
   statusSummary,
   progressStep,
   progressPercent,
-  index,
-  currentTime
+  index
 ) => {
   statusSummary.value = `Copying file: ${files.value[index].name} to local folder`;
 
-  let backupFolder = `${destFolder}backup`;
-  const seperateFileName = fullName.split(".");
-  console.log(currentTime);
-  let originName = `${seperateFileName[0]} ${currentTime}`;
+  let backupFolder = `${destFolder}backup`; //C:\Temp\FilesTransferProject\backup
 
-  let backupSpecificFolder = `${backupFolder}\\${originName}`;
-  console.log(targetFile);
+  const seperateFileName = fullName.split("."); //file1-ORB3-999.json
+
+  let originName = `${seperateFileName[0]}`; //file1-ORB3-999
+
+  let backupSpecificFolder = `${backupFolder}\\${originName}`; // C:\Temp\FilesTransferProject\backup\file1-ORB3-999
+
+  let dateFolderPath = `${backupFolder}\\${originName}\\${date}`; // C:\Temp\FilesTransferProject\backup\file1-ORB3-999\20-09-2023
+
   let finalFile = `${backupSpecificFolder}\\${targetFile.name}`;
 
-  console.log(finalFile);
-  console.log(backupSpecificFolder);
-
   if (!fs.existsSync(backupFolder)) {
+    //C:\Temp\FilesTransferProject\backup
     fs.mkdirSync(backupFolder, { recursive: true });
   }
   if (!fs.existsSync(backupSpecificFolder)) {
-    console.log(backupSpecificFolder);
+    // C:\Temp\FilesTransferProject\backup\file1-ORB3-999
     fs.mkdirSync(backupSpecificFolder, { recursive: true });
   }
-
+  if (!fs.existsSync(dateFolderPath)) {
+    // C:\Temp\FilesTransferProject\backup\file1-ORB3-999\20-09-2023
+    fs.mkdirSync(dateFolderPath, { recursive: true });
+  }
   let { copyStatus, copyError } = copyFileToLocalFolder(
     files.value[index].path,
     finalFile,
     backupSpecificFolder
   );
   if (copyStatus === false) {
-    console.log("COPY FAIL");
     statusSummary.value = copyError;
     files.value[index].copied = actionStatus.FAILURE;
     // continue;
@@ -214,7 +207,6 @@ export const copyFileToBackupTask = (
       localFilePath: targetFile,
       index: index,
     });
-    console.log(localFilesToUpload);
     files.value[index].copied = actionStatus.SUCCESS;
     progressPercent.value += progressStep;
   }
@@ -225,7 +217,7 @@ export const fileHandler = (files, index, platform, tailNumber, folder) => {
   let originName = seperateFileName[0];
   const extension = seperateFileName[1];
   originName = `${originName}-${platform}-${tailNumber}`;
-  const fullName = `${originName}.${extension}`;
+  const fullName = `${originName}.${extension}`; //file1-ORB3-999
   const targetFile = `${folder}${originName}.${extension}`;
 
   return { fullName, targetFile };
@@ -238,23 +230,23 @@ export async function uploadFilesFunction(
   files,
   platform,
   tailNumber,
+  date,
   folder
 ) {
   uploadStatus.value = uploadState.IN_PROGRESS;
   progressPercent.value = 1;
   statusSummary.value = "";
-  let progressStep = Math.round(100 / (files.value.length * 3));
   let localFilesToUpload = [];
+  //let progressStep = Math.round(100 / (files.value.length * 3));
+  // let date = new Date();
+  // let hour = date.getHours();
+  // let minutes = date.getMinutes();
 
-  let date = new Date();
-  let hour = date.getHours();
-  let minutes = date.getMinutes();
+  // let month = date.getMonth() + 1;
+  // let day = date.getDay();
+  // let year = date.getFullYear();
 
-  let month = date.getMonth() + 1;
-  let day = date.getDay();
-  let year = date.getFullYear();
-
-  let currentTime = `${day}.${month}.${year} ${hour}.${minutes}`;
+  // let currentTime = `${day}.${month}.${year} ${hour}.${minutes}`;
 
   for (let i = 0; i < files.value.length; i++) {
     let { fullName, targetFile } = fileHandler(
@@ -264,8 +256,6 @@ export async function uploadFilesFunction(
       tailNumber.value,
       folder
     );
-    console.log(targetFile);
-    console.log(folder);
 
     copyFileTask(
       files,
@@ -274,7 +264,6 @@ export async function uploadFilesFunction(
       localFilesToUpload,
       fullName,
       statusSummary,
-      progressStep,
       progressPercent,
       i
     );
@@ -285,14 +274,13 @@ export async function uploadFilesFunction(
       folder,
       localFilesToUpload,
       fullName,
+      date,
       statusSummary,
-      progressStep,
       progressPercent,
-      i,
-      currentTime
+      i
     );
 
-    deleteTask(files, statusSummary, progressPercent, progressStep, i);
+    //deleteTask(files, statusSummary, progressPercent, progressStep, i);
   }
 
   for (let { fileName, localFilePath, index } of localFilesToUpload) {

@@ -19,7 +19,9 @@
         :uploadStat="uploadStatus" @removeFile="removeFile" />
     </div>
     <div id="main2" v-if="Routes === true">
-      <RouterView></RouterView>
+      <Export :platforms="platforms" @uploadFiles="uploadFiles" @updatePlatformInfo="updatePlatformInfo"></Export>
+      <!-- <RouterView :platforms="platforms" @uploadFiles="uploadFiles"></RouterView> -->
+
     </div>
   </div>
 
@@ -38,6 +40,7 @@ import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
+import Export from "./components/Export.vue";
 import {
   uploadFilesFunction, retryUploadFunction
 } from "./services/fileUploaderService";
@@ -49,7 +52,7 @@ const ipc = electron.ipcRenderer;
 
 export default {
   name: "App",
-  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, Failures },
+  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, Failures, Export },
   setup() {
     const config = ref({});
     config.value = ipc.sendSync("getConfig");
@@ -62,6 +65,7 @@ export default {
     const platformInfoComponent = ref(null);
     const selectedPlatform = ref();
     const selectedTailNumber = ref();
+    const selectedDate = ref('')
     const selectedFiles = ref([]);
 
     const progressPercent = ref(0);
@@ -86,11 +90,11 @@ export default {
     }
 
     watch(
-      [selectedFiles, selectedPlatform, selectedTailNumber],
-      ([newFiles, newPlatform, newTailNumber]) => {
-        if (newFiles.length === 0 && newPlatform && newTailNumber) {
+      [selectedFiles, selectedPlatform, selectedTailNumber, selectedDate],
+      ([newFiles, newPlatform, newTailNumber, newDate]) => {
+        if (newFiles.length === 0 && newPlatform && newTailNumber && newDate) {
           uploadStatus.value = uploadState.CHOOSE_FILES;
-        } else if (newFiles.length > 0 && newPlatform && newTailNumber) {
+        } else if (newFiles.length > 0 && newPlatform && newTailNumber && newDate) {
           uploadStatus.value = uploadState.READY;
         } else {
           uploadStatus.value = uploadState.NONE;
@@ -98,9 +102,10 @@ export default {
       }
     );
 
-    function updatePlatformInfo(platform, tailNumber) {
+    function updatePlatformInfo(platform, tailNumber, date) {
       selectedPlatform.value = platform;
       selectedTailNumber.value = tailNumber;
+      selectedDate.value = date;
     }
 
     function updateSelectedFileList(files) {
@@ -145,6 +150,7 @@ export default {
         selectedFiles,
         selectedPlatform,
         selectedTailNumber,
+        selectedDate,
         localRootFolder)
     }
 

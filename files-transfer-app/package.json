@@ -12,6 +12,7 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^4.2.3",
     "axios": "^1.3.3",
     "bootstrap": "^5.2.3",
     "core-js": "^3.8.3",
