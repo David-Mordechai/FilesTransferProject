@@ -1,0 +1,18 @@
+{
+    "localRootFolder": "C:\\Temp\\FilesTransferProject\\",
+    "platforms": [
+        { "key" : "ORB2", "value" : "Orbiter 2" },   
+        { "key" : "ORB3", "value" : "Orbiter 3" },   
+        { "key" : "ORB4", "value" : "Orbiter 4" },   
+        { "key" : "ORB4-2", "value" : "Orbiter 4-2" },   
+        { "key" : "ORB6", "value" : "Orbiter 6" },  
+        { "key" : "DOMMK3", "value" : "Dominator MK3" },
+        { "key" : "AEROSTARTBP", "value" : "Aerostar BP" }
+    ],
+    "allowedFiles": [
+        { 
+          "name": "csv files", 
+          "extensions": ["json"] 
+        }
+    ]
+}
