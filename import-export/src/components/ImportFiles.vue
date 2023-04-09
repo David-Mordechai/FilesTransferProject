@@ -3,17 +3,15 @@
         <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"></PlatformInfo>
     </div>
     <v-row>
-
         <label for="date" class="label">DATE</label>
         <input id="date" class="data" type="date" v-model="date">
 
         <label for="time" class="timeLabel">TIME</label>
         <input id="time" class="data" type="time" v-model="time">
-
     </v-row>
     <div class="uploadBtn">
         <v-btn @click="exportFiles" rounded="sm" color="primary">
-            Export
+            Import
         </v-btn>
     </div>
 </template>
@@ -22,7 +20,7 @@
 import { ref, watch } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
 export default {
-    name: `Export`,
+    name: `ImportFiles`,
     props: ['platforms', 'updatePlatformInfo', 'exportFiles'],
     emits: ['updatePlatformInfo', "exportFiles"],
     components: { PlatformInfo },

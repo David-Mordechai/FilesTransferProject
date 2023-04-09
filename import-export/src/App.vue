@@ -1,40 +1,23 @@
 <template>
   <v-card>
-    <v-layout>
-      <v-navigation-drawer permanent>
-        <v-list density="compact" nav>
-          <router-link :to="{ name: 'Export' }">
-            <v-list-item prepend-icon="mdi-view-dashboard" title="Export" value="Export">
-            </v-list-item>
-          </router-link>
-          <router-link :to="{ name: 'Import' }">
-            <v-list-item prepend-icon="mdi-forum" title="Import" value="Import">
-            </v-list-item>
-          </router-link>
-        </v-list>
-      </v-navigation-drawer>
-
-      <v-main>
-        <div id="main">
-          <router-view @exportFiles="exportFiles" :platforms="platforms"
-            @updatePlatformInfo="updatePlatformInfo"></router-view>
-        </div>
-      </v-main>
-
-    </v-layout>
-  </v-card>x
+    <div id="main">
+      <ActionSelector></ActionSelector>
+      <router-view @exportFiles="exportFiles" :platforms="platforms"
+        @updatePlatformInfo="updatePlatformInfo"></router-view>
+    </div>
+  </v-card>
 </template>
 
 
 <script lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
 import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
-import Export from "./components/Export.vue";
-import Import from "./components/Import.vue";
+import ExportFiles from "./components/ExportFiles.vue";
+import ImportFiles from "./components/ImportFiles.vue";
 import {
   uploadFile,
   copyFileToLocalFolder,
@@ -45,18 +28,25 @@ import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
 import { config } from './models/config';
-import Logo from "./components/Icons/Logo.vue";
+import ActionSelector from "./components/ActionSelector.vue";
 
 
 export default {
   name: "App",
-  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, Export, Import },
+  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
   setup() {
     const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
     const localRootFolder = config.value!.localRootFolder;
+    const extensionsConfig = config.value?.allowedFiles?.at(0)?.extensions;
+    console.log(extensionsConfig);
+
+
     const sourceFolder = "C:\\Users\\barnoaa\\Desktop\\Jsons";
     const platforms = ref(config.value!.platforms);
+
+    const externalDrivePath = ref('');
+
 
     const platformInfoComponent = ref();
     const selectedPlatform = ref();
@@ -183,7 +173,9 @@ export default {
 
     function exportFiles(date: string, time: string) {
       console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
-      exportFilesFunction(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value);
+      console.log(sourceFolder);
+
+      exportFilesFunction(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
 
     }
     return {
@@ -199,7 +191,9 @@ export default {
       uploadFiles,
       removeFile,
       reset,
-      exportFiles
+      exportFiles,
+      externalDrivePath,
+      extensionsConfig
     };
   },
 };

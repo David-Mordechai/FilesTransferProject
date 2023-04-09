@@ -14,7 +14,7 @@
     </v-row>
     <div class="uploadBtn">
         <v-btn rounded="sm" color="primary">
-            Import
+            Export
         </v-btn>
     </div>
 </templatE>
@@ -23,7 +23,7 @@
 import { ref } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
 export default {
-    name: `Import`,
+    name: `ExportFiles`,
     props: ['platforms', 'updatePlatformInfo', 'dates', 'time'],
     emits: ['updatePlatformInfo', "uploadFiles"],
     components: { PlatformInfo },
@@ -36,10 +36,6 @@ export default {
 
         const selectDates = ref()
         const selectTime = ref()
-
-
-
-
 
         return { PlatformInfo, date, selectDates, time, datesList, timeList, selectTime }
 

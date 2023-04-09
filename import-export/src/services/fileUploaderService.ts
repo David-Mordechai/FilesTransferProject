@@ -1,7 +1,8 @@
+import { deepStrictEqual } from "assert";
 import axios from "axios";
 import fs from "fs";
-import { tail } from "lodash";
-import { platform } from "os";
+
+import path from "path";
 
 export const uploadFile = async (fileName: string, localFilePath: string) => {
   try {
@@ -67,7 +68,7 @@ export const deleteFileFromSourceFolder = async (file: any) => {
 //     // }
 // }
 
-export function folderHandler(
+export function backupfolderHandler(
   destFolder: string,
   date: string,
   time: string,
@@ -93,17 +94,21 @@ export function exportFilesFunction(
   date: string,
   time: string,
   platform: string,
-  tailNumber: string
+  tailNumber: string,
+  extensionsConfig: Array<string>
 ) {
-  let finalFolder: string = folderHandler(
-    destFolder,
-    date,
-    time,
-    platform,
-    tailNumber
-  );
+  if (sourceFolder.trim().length !== 0) {
+    let finalFolder: string = backupfolderHandler(
+      destFolder,
+      date,
+      time,
+      platform,
+      tailNumber
+    );
 
-  copyFileToBackupTask(sourceFolder, finalFolder);
+    copyFileToBackupTask(sourceFolder, finalFolder);
+    copyFileToInProgressTask(sourceFolder, destFolder, extensionsConfig);
+  }
 }
 
 export function copyFileToBackupTask(sourceFolder: string, destFolder: string) {
@@ -115,4 +120,32 @@ export function copyFileToBackupTask(sourceFolder: string, destFolder: string) {
   } catch (error) {
     console.log(error);
   }
+}
+
+export function copyFileToInProgressTask(
+  sourceFolder: string,
+  destFolder: string,
+  extensionsConfig: Array<string>
+) {
+  const inProgressFolder = `${destFolder}inProgress\\`;
+
+  const files = fs
+    .readdirSync(sourceFolder)
+    .filter((file) => {
+      if (path.extname(file) === "")
+        copyFileToInProgressTask(
+          `${sourceFolder}\\${file}`,
+          destFolder,
+          extensionsConfig
+        );
+      else return extensionsConfig.includes(path.extname(file));
+    })
+    .map((file) => {
+      const path = `${sourceFolder}\\${file}`;
+      if (fs.lstatSync(path).isFile()) {
+        fs.copyFile(path, `${inProgressFolder}\\${file}`, (error) => {
+          if (error) console.error(error);
+        });
+      }
+    });
 }

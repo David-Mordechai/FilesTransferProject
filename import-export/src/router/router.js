@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, VueRouter } from "vue-router";
-import Export from "../components/Export.vue";
-import Import from "../components/Import.vue";
+import ExportFiles from "../components/ExportFiles.vue";
+import ImportFiles from "../components/ImportFiles.vue";
 const routes = [
   {
     path: "/",
@@ -11,12 +11,12 @@ const routes = [
   {
     path: "/export",
     name: "Export",
-    component: Export,
+    component: ExportFiles,
   },
   {
     path: "/import",
     name: "Import",
-    component: Import,
+    component: ImportFiles,
   },
 ];
 

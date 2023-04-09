@@ -1,18 +1,18 @@
-import { createApp } from 'vue'
-import "./style.css"
-import App from './App.vue'
-import './samples/node-api'
-import  * as VueRouters from 'vue-router'
-import Import from './components/Import.vue'
-import Export from './components/Export.vue'
+import { createApp } from "vue";
+import "./style.css";
+import App from "./App.vue";
+import "./samples/node-api";
+import * as VueRouters from "vue-router";
+import ExportFiles from "./components/ExportFiles.vue";
+import ImportFiles from "./components/ImportFiles.vue";
 // Vuetify
-import 'vuetify/styles'
-import { createVuetify, ThemeDefinition } from 'vuetify'
-import * as labs from 'vuetify/labs/components'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import "vuetify/styles";
+import { createVuetify, ThemeDefinition } from "vuetify";
+import * as labs from "vuetify/labs/components";
+import * as components from "vuetify/components";
+import * as directives from "vuetify/directives";
 
-import 'vuetify/styles'
+import "vuetify/styles";
 import { fa } from "vuetify/iconsets/fa";
 import { aliases, mdi } from "vuetify/lib/iconsets/mdi";
 // make sure to also import the coresponding css
@@ -21,23 +21,22 @@ import "@fortawesome/fontawesome-free/css/all.css"; // Ensure your project is ca
 const myCustomLightTheme: ThemeDefinition = {
   dark: true,
   colors: {
-    primary: '#2196F3',
-    secondary: '#263238',
+    primary: "#2196F3",
+    secondary: "#263238",
   },
-}
+};
 
 const vuetify = createVuetify({
   components: {
     ...labs,
-    ...components
-    
+    ...components,
   },
   directives,
   theme: {
-    defaultTheme: 'myCustomLightTheme',
+    defaultTheme: "myCustomLightTheme",
     themes: {
       myCustomLightTheme,
-    }
+    },
   },
   icons: {
     defaultSet: "mdi",
@@ -47,19 +46,18 @@ const vuetify = createVuetify({
       fa,
     },
   },
-})
+});
 
 const routes = [
- 
- {
+  {
     path: "/",
     name: "Export",
-    component: Export,
+    component: ExportFiles,
   },
   {
     path: "/import",
     name: "Import",
-    component: Import,
+    component: ImportFiles,
   },
 ];
 
@@ -69,9 +67,9 @@ const router = VueRouters.createRouter({
 });
 
 createApp(App)
-.use(router)
-.use(vuetify)
-  .mount('#app')
+  .use(router)
+  .use(vuetify)
+  .mount("#app")
   .$nextTick(() => {
-    postMessage({ payload: 'removeLoading' }, '*')
-  })
+    postMessage({ payload: "removeLoading" }, "*");
+  });
