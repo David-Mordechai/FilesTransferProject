@@ -12,16 +12,11 @@
 <script lang="ts">
 import { ref, watch, computed } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
-import SideBar from "./components/SideBar.vue";
-import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
 import {
-  uploadFile,
-  copyFileToLocalFolder,
-  deleteFileFromSourceFolder,
   exportFilesFunction
 } from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
@@ -33,7 +28,7 @@ import ActionSelector from "./components/ActionSelector.vue";
 
 export default {
   name: "App",
-  components: { ProgressBar, SideBar, FilesListTable, TitleBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
+  components: { ProgressBar, TitleBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
   setup() {
     const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
@@ -126,50 +121,6 @@ export default {
       );
     }
 
-    async function uploadFiles() {
-      uploadStatus.value = uploadState.IN_PROGRESS;
-      statusSummary.value = "";
-
-      let localFolder = `${localRootFolder}${selectedPlatform.value}-${selectedTailNumber.value}\\`;
-      for (let i = 0; i < selectedFiles.value.length; i++) {
-        progressCurrent.value = i + 1;
-        statusSummary.value = `Copying file: ${selectedFiles.value[i].name} to local folder`;
-        let { copyStatus, copyError, localFilePath } = await copyFileToLocalFolder(
-          selectedFiles.value[i],
-          localFolder
-        );
-        if (copyStatus === false) {
-          statusSummary.value = copyError;
-          selectedFiles.value[i].copied = actionStatus.FAILURE;
-          continue;
-        } else {
-          selectedFiles.value[i].copied = actionStatus.SUCCESS;
-        }
-
-        statusSummary.value = `Deleting file: ${selectedFiles.value[i].name} from source folder`;
-        let { deleteStatus, deleteError } = await deleteFileFromSourceFolder(
-          selectedFiles.value[i]
-        );
-        if (deleteStatus === false) {
-          statusSummary.value = deleteError;
-          selectedFiles.value[i].deleted = actionStatus.FAILURE;
-        } else {
-          selectedFiles.value[i].deleted = actionStatus.SUCCESS;
-        }
-
-        statusSummary.value = `Uploading file: ${selectedFiles.value[i].name}`;
-        let { uploadStatus, uploadError } = await uploadFile(selectedFiles.value[i].name, localFilePath);
-        if (uploadStatus === false) {
-          statusSummary.value = uploadError;
-          selectedFiles.value[i].uploaded = actionStatus.FAILURE
-        } else {
-          selectedFiles.value[i].uploaded = actionStatus.SUCCESS
-        }
-      }
-
-      statusSummary.value = "Process complete";
-      uploadStatus.value = uploadState.COMPLETED;
-    }
 
     function exportFiles(date: string, time: string) {
       console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
@@ -188,7 +139,6 @@ export default {
       platformInfoComponent,
       updateSelectedFileList,
       updatePlatformInfo,
-      uploadFiles,
       removeFile,
       reset,
       exportFiles,

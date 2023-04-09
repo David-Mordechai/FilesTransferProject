@@ -4,22 +4,6 @@ import fs from "fs";
 
 import path from "path";
 
-export const uploadFile = async (fileName: string, localFilePath: string) => {
-  try {
-    const response = await axios.post("https://localhost:7180/transferFile", {
-      fileType: `${fileName}`,
-      filePath: `${localFilePath}`,
-    });
-
-    if (response.status === 200) return { uploadStatus: true, uploadError: "" };
-
-    return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` };
-  } catch (error) {
-    console.log(error);
-    return { uploadStatus: false, uploadError: `Upload ${fileName} Failed` };
-  }
-};
-
 export const copyFileToLocalFolder = async (
   file: any,
   localRootFolder: string
@@ -60,14 +44,6 @@ export const deleteFileFromSourceFolder = async (file: any) => {
   }
 };
 
-// export const ExportTask(){
-//     //foldersHandler(platfomr,tailNumber,date,time,fileName);
-//     // copyFileToBackupTask()
-//     // if(extension equals to config.extensions){
-//     //     copyFileToInProgressFolder()
-//     // }
-// }
-
 export function backupfolderHandler(
   destFolder: string,
   date: string,
@@ -86,6 +62,23 @@ export function backupfolderHandler(
   }
 
   return finalFolder;
+}
+
+export function inProgressfolderHandler(
+  destFolder: string,
+  date: string,
+  time: string,
+  platform: string,
+  tailNumber: string,
+  file: string
+) {
+  let platformTailNumber = `${platform}-${tailNumber}`;
+  let timeSplit = time.split(":");
+  let fixedTime = `${timeSplit[0]}-${timeSplit[1]}`;
+
+  let finalFileName = `${platformTailNumber}-${date}-${fixedTime}-${file}`;
+
+  return finalFileName;
 }
 
 export function exportFilesFunction(
@@ -107,7 +100,15 @@ export function exportFilesFunction(
     );
 
     copyFileToBackupTask(sourceFolder, finalFolder);
-    copyFileToInProgressTask(sourceFolder, destFolder, extensionsConfig);
+    copyFileToInProgressTask(
+      sourceFolder,
+      destFolder,
+      extensionsConfig,
+      date,
+      time,
+      platform,
+      tailNumber
+    );
   }
 }
 
@@ -125,7 +126,11 @@ export function copyFileToBackupTask(sourceFolder: string, destFolder: string) {
 export function copyFileToInProgressTask(
   sourceFolder: string,
   destFolder: string,
-  extensionsConfig: Array<string>
+  extensionsConfig: Array<string>,
+  date: string,
+  time: string,
+  platform: string,
+  tailNumber: string
 ) {
   const inProgressFolder = `${destFolder}inProgress\\`;
 
@@ -136,16 +141,27 @@ export function copyFileToInProgressTask(
         copyFileToInProgressTask(
           `${sourceFolder}\\${file}`,
           destFolder,
-          extensionsConfig
+          extensionsConfig,
+          date,
+          time,
+          platform,
+          tailNumber
         );
       else return extensionsConfig.includes(path.extname(file));
     })
     .map((file) => {
-      const path = `${sourceFolder}\\${file}`;
-      if (fs.lstatSync(path).isFile()) {
-        fs.copyFile(path, `${inProgressFolder}\\${file}`, (error) => {
-          if (error) console.error(error);
-        });
-      }
+      let finalFileName = inProgressfolderHandler(
+        inProgressFolder,
+        date,
+        time,
+        platform,
+        tailNumber,
+        file
+      );
+      const source = `${sourceFolder}\\${file}`;
+      const dest = `${inProgressFolder}\\${finalFileName}`;
+      fs.copyFile(source, dest, (error) => {
+        if (error) console.error(error);
+      });
     });
 }
