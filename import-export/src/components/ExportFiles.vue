@@ -1,43 +1,73 @@
 <template>
     <div>
-        <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"></PlatformInfo>
+        <v-btn> <router-link :to="{ name: 'ActionSelector' }">
+                Back</router-link>
+        </v-btn>
+    </div>
+    <div>
+        <PlatformInfo :platforms="platforms" @updateExportPlatformInfo="updateExportPlatformInfo"></PlatformInfo>
     </div>
     <v-row>
         <v-col>
-            <v-select v-model="selectDates" :items="datesList" item-title="value" item-value="key" clearable
+            <v-select v-model="date" :items="datesList" item-title="value" @getTimes="getTimes" item-value="key" clearable
                 density="compact" label="Choose Date" persistent-hint single-line></v-select>
         </v-col>
         <v-col>
-            <v-select v-model="selectTime" :items="timeList" item-title="value" item-value="key" clearable density="compact"
+            <v-select v-model="time" :items="timesList" item-title="value" item-value="key" clearable density="compact"
                 label="Choose Time" persistent-hint single-line></v-select>
         </v-col>
     </v-row>
     <div class="uploadBtn">
-        <v-btn rounded="sm" color="primary">
+        <v-btn rounded="sm" color="primary" @click="exportFiles">
             Export
         </v-btn>
     </div>
 </templatE>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, computed, } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
+import { watch } from 'vue';
+import { platform } from 'os';
 export default {
     name: `ExportFiles`,
-    props: ['platforms', 'updatePlatformInfo', 'dates', 'time'],
-    emits: ['updatePlatformInfo'],
+    props: ['platforms', 'updateExportPlatformInfo', 'updatePlatformInfo', 'dates', 'time', 'datesList', 'timesList', 'getTimes'],
+    emits: ['updateExportPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimes'],
     components: { PlatformInfo },
     setup(props, context) {
-        const datesList = ref(props.dates);
-        const timeList = ref(props.time);
+        const datesList = computed(() => {
+            return props.datesList
+        });
 
-        const date = ref();
-        const time = ref();
+        const timesList = computed(() => {
+            return props.timesList
+        });
 
-        const selectDates = ref()
-        const selectTime = ref()
+        watch(
+            [datesList],
+            ([newDate]) => {
+                if (newDate) {
+                    context.emit("getTimes");
+                }
+            }
+        );
 
-        return { PlatformInfo, date, selectDates, time, datesList, timeList, selectTime }
+        const date = ref()
+        const time = ref()
+
+        function exportFiles(date: string, time: string) {
+            context.emit('exportFiles', date, time);
+        }
+
+        function updateExportPlatformInfo(platform: string, tailNumber: number) {
+            context.emit("updateExportPlatformInfo", platform, tailNumber);
+        }
+
+        function getTimes(platform: string, tailNumber: number, date: string) {
+            context.emit("getTimes", platform, tailNumber, date);
+        }
+
+        return { PlatformInfo, date, datesList, timesList, time, updateExportPlatformInfo, exportFiles, getTimes }
 
     }
 }

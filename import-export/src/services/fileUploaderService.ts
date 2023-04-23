@@ -134,6 +134,9 @@ export function copyFileToInProgressTask(
 ) {
   const inProgressFolder = `${destFolder}inProgress\\`;
 
+  if (!fs.existsSync(inProgressFolder)) {
+    fs.mkdirSync(inProgressFolder, { recursive: true });
+  }
   const files = fs
     .readdirSync(sourceFolder)
     .filter((file) => {

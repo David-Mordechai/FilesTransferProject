@@ -1,5 +1,10 @@
 <template>
     <div>
+        <v-btn> <router-link :to="{ name: 'ActionSelector' }">
+                Back</router-link>
+        </v-btn>
+    </div>
+    <div>
         <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"></PlatformInfo>
     </div>
     <v-row>
@@ -21,8 +26,8 @@ import { ref, watch } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
 export default {
     name: `ImportFiles`,
-    props: ['platforms', 'updatePlatformInfo', 'exportFiles'],
-    emits: ['updatePlatformInfo', "exportFiles"],
+    props: ['platforms', 'updatePlatformInfo', 'exportFiles', 'updateExportPlatformInfo'],
+    emits: ['updatePlatformInfo', 'updateExportPlatformInfo', "exportFiles"],
     components: { PlatformInfo },
 
     setup(props, context) {

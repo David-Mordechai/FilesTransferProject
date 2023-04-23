@@ -1,16 +1,26 @@
 <template>
   <v-card>
     <div id="main">
-      <ActionSelector></ActionSelector>
-      <router-view @exportFiles="exportFiles" :platforms="platforms"
-        @updatePlatformInfo="updatePlatformInfo"></router-view>
+      <!-- <div>
+        <ActionSelector v-if="sourceFolder !== ''"></ActionSelector>
+      </div> -->
+
+      <div v-if="sourceFolder === ''">
+        <h1 class="noExternalDrive">NO EXTERNAL DRIVE CONNECTED</h1>
+      </div>
+
+      <div v-if="sourceFolder !== ''">
+        <router-view @exportFiles="exportFiles" :platforms="platforms" :datesList="datesList"
+          @updatePlatformInfo="updatePlatformInfo" @updateExportPlatformInfo="updateExportPlatformInfo"
+          @getTimes="getTimes" :timesList="timesList"></router-view>
+      </div>
     </div>
   </v-card>
 </template>
 
 
 <script lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, watch } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
@@ -33,7 +43,7 @@ export default {
     const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
     const localRootFolder = config.value!.localRootFolder;
-    const extensionsConfig = config.value?.allowedFiles?.at(0)?.extensions;
+    const extensionsConfig = config.value?.allowedFiles?.at(0);
     console.log(extensionsConfig);
 
 
@@ -56,6 +66,8 @@ export default {
     const uploadStatus = ref();
     uploadStatus.value = uploadState.NONE;
 
+    const datesList = ref();
+    const timesList = ref();
     function reset() {
       progressTotal.value = 0;
       progressCurrent.value = 0;
@@ -78,14 +90,29 @@ export default {
       }
     );
 
+    function updateExportPlatformInfo(platform: string, tailNumber: number) {
+      selectedPlatform.value = platform;
+      selectedTailNumber.value = tailNumber;
+
+      const details = ipcRenderer.sendSync("PlatformDetailsQuery", selectedPlatform.value, selectedTailNumber.value)
+      console.log(details);
+      console.log(selectedPlatform.value, selectedTailNumber.value);
+
+      datesList.value = details;
+    }
+
+    function getTimes(platform: string, tailNumber: number, date: string) {
+      const times = ipcRenderer.sendSync("getTimes", platform, tailNumber, date);
+      console.log(times);
+
+      timesList.value = times;
+    }
     function updatePlatformInfo(platform: string, tailNumber: number) {
       selectedPlatform.value = platform;
       selectedTailNumber.value = tailNumber;
 
       console.log(selectedPlatform.value, selectedTailNumber.value);
-
     }
-
     function updateSelectedFileList(files: any) {
       let newFiles = files.map((file: any) => {
         return {
@@ -143,7 +170,10 @@ export default {
       reset,
       exportFiles,
       externalDrivePath,
-      extensionsConfig
+      extensionsConfig, sourceFolder,
+      datesList,
+      getTimes, timesList,
+      updateExportPlatformInfo
     };
   },
 };
@@ -161,6 +191,14 @@ export default {
   display: grid;
   grid-template-areas: "f1 f1 f2";
   place-items: center;
+}
+
+.noExternalDrive {
+  margin-top: 20%;
+  margin-bottom: 20%;
+  margin-left: 28%;
+  margin-right: 28%;
+  text-shadow: 1px 1px 2px gray;
 }
 
 .status-progressBar {
