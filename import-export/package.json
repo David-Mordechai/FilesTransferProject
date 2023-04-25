@@ -41,6 +41,8 @@
   "dependencies": {
     "@mdi/font": "^7.2.96",
     "axios": "^1.3.4",
+    "electron-edge-js": "^23.0.0",
+    "usb": "^2.9.0",
     "vue-router": "4"
   }
 }

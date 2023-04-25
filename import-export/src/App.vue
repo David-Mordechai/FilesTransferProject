@@ -43,7 +43,7 @@ export default {
     const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
     const localRootFolder = config.value!.localRootFolder;
-    const extensionsConfig = config.value?.allowedFiles?.at(0);
+    const extensionsConfig : any = config.value?.allowedFiles?.at(0);
     console.log(extensionsConfig);
 
 
