@@ -1,34 +1,18 @@
 import { usb } from "usb";
 import EventEmitter from "events";
 import edge from "electron-edge-js";
-import path from "path";
-import { BrowserWindow, dialog } from "electron";
 
 export default class UsbEventsContorller extends EventEmitter {
   drivesCache = {};
   dll: edge.Func<unknown, unknown>;
   dllPath: string;
-  constructor(isDevelopment: boolean) {
+  
+  constructor(dllPath: string) {
     super();
-    // const dllPath = path.join(process.env.PUBLIC, "RemovableUsbInfo.dll")
-    try {
-      this.dllPath = isDevelopment
-        ? path.join(__dirname, "../../public/RemovableUsbInfo.dll")
-        : path.join(process.env.PUBLIC, "RemovableUsbInfo.dll");
-        
-    } catch (error) {
-      console.log(error)
-    }
-
+    this.dll = edge.func(dllPath);
   }
 
-  async startListing(win: BrowserWindow) {
-
-    const shortPath = this.dllPath.indexOf("resources") === -1 ? this.dllPath : this.dllPath.substring(this.dllPath.indexOf("resources"));
-    dialog.showMessageBox(win,{ message: `${shortPath}`,textWidth: 1000});
-    // this.dll = edge.func(this.dllPath);
-    this.dll = edge.func(this.dllPath);
-    dialog.showMessageBox(win,{ message: `after loading dll`});
+  async startListing() {
 
     usb.on("attach", (device) => {
       console.log("attach");

@@ -14,32 +14,31 @@ export const addListeners = async (
     isDevelopment: boolean
 ) => {
     mainWin = win;
-    usbEvents = new UsbEventsContorller(isDevelopment);
 
     try {
         let configFilePath = isDevelopment
-            ? path.join(__dirname, "../../public/config.json")
-            : path.join(process.env.PUBLIC, "config.json");
+            ? path.join(__dirname, "../../public/appsettings.json")
+            : "appsettings.json";
         var configContent = fs.readFileSync(configFilePath);
         config = JSON.parse(configContent.toString());
-
-        // await usbEvents.startListing(mainWin);
-
-        // setTimeout(() =>{
-        //     usbEvents.on("attach", (device) => {
-        //         dialog.showMessageBox(mainWin,{ message: `${device.Path}`});
-        //     });
-    
-        //     usbEvents.on("detach", (device) => {
-        //         dialog.showMessageBox(mainWin,{ message: `${device.Path}`});
-        //     });
-        // }, 1000)
-        
-
     } catch (error) {
         console.log(error);
         config = { platforms: [], allowedFiles: [], localRootFolder: "" };
     }
+
+    let dllPath = isDevelopment
+        ? path.join(__dirname, "../../public/RemovableUsbInfo.dll")
+        : "dependencies/RemovableUsbInfo.dll";
+    usbEvents = new UsbEventsContorller(dllPath);
+    await usbEvents.startListing();
+
+    usbEvents.on("attach", (device) => {
+        dialog.showMessageBox(mainWin, { message: `Usb attached ${device.Path} (${device.Label})` });
+    });
+
+    usbEvents.on("detach", (device) => {
+        dialog.showMessageBox(mainWin, { message: `Usb detached ${device.Path} (${device.Label})` });
+    });
 
     win.on("maximize", () => {
         win.webContents.send("full-screen", { isFullScreen: true });

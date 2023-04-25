@@ -12,6 +12,18 @@
     "dist-electron",
     "dist"
   ],
+  "extraResources":[
+    {
+      "from": "public",
+      "to": "../",
+      "filter": ["appsettings.json"]
+    },
+    {
+      "from": "public",
+      "to": "../dependencies",
+      "filter": ["RemovableUsbInfo.dll"]
+    }
+  ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
     "target": [
