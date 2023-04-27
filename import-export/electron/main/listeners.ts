@@ -1,4 +1,4 @@
-import { app, dialog, ipcMain } from "electron";
+import { dialog, ipcMain } from "electron";
 import { BrowserWindow } from "electron/main";
 import fs from "fs";
 import path from "path";
@@ -34,34 +34,11 @@ export const addListeners = async (
 
     usbEvents.on("attach", (device) => {
         dialog.showMessageBox(mainWin, { message: `Usb attached ${device.Path} (${device.Label})` });
+        // win.restore();
     });
 
     usbEvents.on("detach", (device) => {
         dialog.showMessageBox(mainWin, { message: `Usb detached ${device.Path} (${device.Label})` });
-    });
-
-    win.on("maximize", () => {
-        win.webContents.send("full-screen", { isFullScreen: true });
-    });
-
-    win.on("unmaximize", () => {
-        win.webContents.send("full-screen", { isFullScreen: false });
-    });
-
-    ipcMain.on("close", () => {
-        app.quit();
-    });
-
-    ipcMain.on("minimize", () => {
-        win.minimize();
-    });
-
-    ipcMain.on("maximize", () => {
-        win.maximize();
-    });
-
-    ipcMain.on("restore", () => {
-        win.restore();
     });
 
     ipcMain.on("getConfig", (event) => {

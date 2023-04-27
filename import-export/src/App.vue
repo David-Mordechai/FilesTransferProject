@@ -22,7 +22,6 @@
 <script lang="ts">
 import { ref, watch } from "vue";
 import ProgressBar from "./components/ProgressBar.vue";
-import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
@@ -38,7 +37,7 @@ import ActionSelector from "./components/ActionSelector.vue";
 
 export default {
   name: "App",
-  components: { ProgressBar, TitleBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
+  components: { ProgressBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
   setup() {
     const config = ref<config>();
     config.value = ipcRenderer.sendSync("getConfig");
