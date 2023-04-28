@@ -4,10 +4,12 @@ import fs from "fs";
 import path from "path";
 import { appSettings } from "../models/appSettings";
 import UsbEventsContorller from "../usbDetection/UsbEventsContorller";
+import { UsbDevice } from "../models/usbDevice";
 
 var appSettings: appSettings;
 var mainWin: BrowserWindow;
 var usbEvents: UsbEventsContorller;
+var connectedUsbDevice: UsbDevice = null;
 
 export const addListeners = async (
     win: BrowserWindow,
@@ -32,13 +34,18 @@ export const addListeners = async (
     usbEvents = new UsbEventsContorller(dllPath);
     await usbEvents.startListing();
 
-    usbEvents.on("attach", (device) => {
-        dialog.showMessageBox(mainWin, { message: `Usb attached ${device.Path} (${device.Label})` });
-        // win.restore();
+    usbEvents.on("attach", (device: UsbDevice) => {
+        if (connectedUsbDevice === null) {
+            connectedUsbDevice = device;
+            win.webContents.send('usb-state', { 'isConnected': true, path: device.Path, label: device.Label })
+        }
     });
 
-    usbEvents.on("detach", (device) => {
-        dialog.showMessageBox(mainWin, { message: `Usb detached ${device.Path} (${device.Label})` });
+    usbEvents.on("detach", (device: UsbDevice) => {
+        if (connectedUsbDevice && connectedUsbDevice.Path === device.Path) {
+            connectedUsbDevice = null;
+            win.webContents.send('usb-state', { 'isConnected': false, path: '', label: '' })
+        }
     });
 
     ipcMain.on("getConfig", (event) => {

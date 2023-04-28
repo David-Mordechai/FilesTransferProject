@@ -1,7 +1,7 @@
 <template>
     <div class="actionSelection">
-        <h1 class="title1">External drive connected</h1>
-        <h2 class="title2">Choose your next action:</h2>
+        <!-- <h1 class="title1">External drive connected</h1> -->
+        <!-- <h2 class="title2">Choose your next action:</h2> -->
         <div class="buttons">
             <router-link :to="{ name: 'ActionSelector' }"></router-link>
             <v-btn>

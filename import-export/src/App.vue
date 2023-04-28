@@ -5,11 +5,12 @@
         <ActionSelector v-if="sourceFolder !== ''"></ActionSelector>
       </div> -->
 
-      <div v-if="sourceFolder === ''">
-        <h1 class="noExternalDrive">NO EXTERNAL DRIVE CONNECTED</h1>
+      <div v-if="connectedUsb?.isConnected === false">
+        <h1 class="noExternalDrive">Please attach external storage device to begin.</h1>
       </div>
 
-      <div v-if="sourceFolder !== ''">
+      <div v-if="connectedUsb?.isConnected">
+        <h2>External storage device attached {{ connectedUsb.label }}</h2>
         <router-view @exportFiles="exportFiles" :platforms="platforms" :datesList="datesList"
           @updatePlatformInfo="updatePlatformInfo" @updateExportPlatformInfo="updateExportPlatformInfo"
           @getTimes="getTimes" :timesList="timesList"></router-view>
@@ -33,6 +34,7 @@ import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
 import { appSettings } from './models/appSettings';
 import ActionSelector from "./components/ActionSelector.vue";
+import { UsbDevice } from "./models/usbDevice";
 
 
 export default {
@@ -41,8 +43,16 @@ export default {
   setup() {
     const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
+
+    const connectedUsb = ref<UsbDevice>(new UsbDevice());
+    ipcRenderer.on("usb-state", (_, data: UsbDevice) => {
+      externalDrivePath.value = data.path;
+      connectedUsb.value = data
+    });
+
+
     const localRootFolder = config.value!.localRootFolder;
-    const extensionsConfig : any = config.value?.allowedFiles?.at(0);
+    const extensionsConfig: any = config.value?.allowedFiles?.at(0);
     console.log(extensionsConfig);
 
 
@@ -169,10 +179,12 @@ export default {
       reset,
       exportFiles,
       externalDrivePath,
-      extensionsConfig, sourceFolder,
+      extensionsConfig, 
+      sourceFolder,
       datesList,
       getTimes, timesList,
-      updateExportPlatformInfo
+      updateExportPlatformInfo,
+      connectedUsb
     };
   },
 };
