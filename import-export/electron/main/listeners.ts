@@ -2,10 +2,10 @@ import { dialog, ipcMain } from "electron";
 import { BrowserWindow } from "electron/main";
 import fs from "fs";
 import path from "path";
-import { config } from "../models/config";
-import UsbEventsContorller from "./usbDetection/UsbEventsContorller";
+import { appSettings } from "../models/appSettings";
+import UsbEventsContorller from "../usbDetection/UsbEventsContorller";
 
-var config: config;
+var appSettings: appSettings;
 var mainWin: BrowserWindow;
 var usbEvents: UsbEventsContorller;
 
@@ -20,10 +20,10 @@ export const addListeners = async (
             ? path.join(__dirname, "../../public/appsettings.json")
             : "appsettings.json";
         var configContent = fs.readFileSync(configFilePath);
-        config = JSON.parse(configContent.toString());
+        appSettings = JSON.parse(configContent.toString());
     } catch (error) {
         console.log(error);
-        config = { platforms: [], allowedFiles: [], localRootFolder: "" };
+        appSettings = { platforms: [], allowedFiles: [], localRootFolder: "" };
     }
 
     let dllPath = isDevelopment
@@ -42,15 +42,15 @@ export const addListeners = async (
     });
 
     ipcMain.on("getConfig", (event) => {
-        event.returnValue = config;
+        event.returnValue = appSettings;
     });
 
     ipcMain.on("PlatformDetailsQuery", (event, platform, tailNumber) => {
         const folderName = `${platform}-${tailNumber}`;
 
-        if (fs.existsSync(`${config.localRootFolder}backup\\${folderName}\\`)) {
+        if (fs.existsSync(`${appSettings.localRootFolder}backup\\${folderName}\\`)) {
             const folders = fs.readdirSync(
-                `${config.localRootFolder}backup\\${folderName}\\`
+                `${appSettings.localRootFolder}backup\\${folderName}\\`
             );
             event.returnValue = folders;
         }
@@ -58,7 +58,7 @@ export const addListeners = async (
 
     ipcMain.on("getTimes", (event, platform, tailNumber, date) => {
         const PlatformFolder = `${platform}-${tailNumber}`;
-        const path = `${config.localRootFolder}backup\\${PlatformFolder}\\${date}`;
+        const path = `${appSettings.localRootFolder}backup\\${PlatformFolder}\\${date}`;
         if (fs.existsSync(path)) {
             const folders = fs.readdirSync(path);
 
@@ -69,7 +69,7 @@ export const addListeners = async (
     ipcMain.on("choose-files", (event) => {
         const files = dialog.showOpenDialogSync({
             properties: ["openFile", "multiSelections"],
-            filters: config.allowedFiles,
+            filters: appSettings.allowedFiles,
         });
         if (!files) {
             event.returnValue = [];

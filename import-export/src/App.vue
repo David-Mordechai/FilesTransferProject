@@ -31,7 +31,7 @@ import {
 import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
-import { config } from './models/config';
+import { appSettings } from './models/appSettings';
 import ActionSelector from "./components/ActionSelector.vue";
 
 
@@ -39,7 +39,7 @@ export default {
   name: "App",
   components: { ProgressBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
   setup() {
-    const config = ref<config>();
+    const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
     const localRootFolder = config.value!.localRootFolder;
     const extensionsConfig : any = config.value?.allowedFiles?.at(0);

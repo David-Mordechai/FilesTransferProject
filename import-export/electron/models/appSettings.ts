@@ -1,4 +1,4 @@
-export interface config {
+export interface appSettings {
     localRootFolder: string;
     platforms: [];
     allowedFiles: [];
