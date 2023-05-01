@@ -52,7 +52,7 @@ export default {
 
 
     const localRootFolder = config.value!.localRootFolder;
-    const extensionsConfig: any = config.value?.allowedFiles?.at(0);
+    const extensionsConfig: any = config.value?.allowedFiles[0].extentions;
     console.log(extensionsConfig);
 
 
@@ -179,7 +179,7 @@ export default {
       reset,
       exportFiles,
       externalDrivePath,
-      extensionsConfig, 
+      extensionsConfig,
       sourceFolder,
       datesList,
       getTimes, timesList,

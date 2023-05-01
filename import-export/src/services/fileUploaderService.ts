@@ -91,6 +91,7 @@ export function exportFilesFunction(
   extensionsConfig: Array<string>
 ) {
   if (sourceFolder.trim().length !== 0) {
+    // 1. creates folder with structure by platform & Tail# then by Date and then by Time
     let finalFolder: string = backupfolderHandler(
       destFolder,
       date,
@@ -99,7 +100,10 @@ export function exportFilesFunction(
       tailNumber
     );
 
+    // 2. copy from usb to created backup folder
     copyFileToBackupTask(sourceFolder, finalFolder);
+
+    // 3. copy files by extentions from appsettings that need to be send to kafka to InProgress folder
     copyFileToInProgressTask(
       sourceFolder,
       destFolder,
@@ -150,7 +154,9 @@ export function copyFileToInProgressTask(
           platform,
           tailNumber
         );
-      else return extensionsConfig.includes(path.extname(file));
+      else {
+        return extensionsConfig.includes(path.extname(file));
+      }
     })
     .map((file) => {
       let finalFileName = inProgressfolderHandler(

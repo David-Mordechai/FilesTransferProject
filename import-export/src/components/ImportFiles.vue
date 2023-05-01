@@ -26,8 +26,8 @@ import { ref, watch } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
 export default {
     name: `ImportFiles`,
-    props: ['platforms', 'updatePlatformInfo', 'exportFiles', 'updateExportPlatformInfo'],
-    emits: ['updatePlatformInfo', 'updateExportPlatformInfo', "exportFiles"],
+    props: ['platforms', 'updatePlatformInfo', 'exportFiles', 'updateExportPlatformInfo', 'datesList', 'timesList'],
+    emits: ['updatePlatformInfo', 'updateExportPlatformInfo', "exportFiles", 'getTimes'],
     components: { PlatformInfo },
 
     setup(props, context) {
