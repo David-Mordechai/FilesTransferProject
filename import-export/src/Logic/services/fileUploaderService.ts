@@ -1,8 +1,15 @@
 import { deepStrictEqual } from "assert";
 import axios from "axios";
 import fs from "fs";
-
 import path from "path";
+import { TransferFilesWorkflow } from "../Import/workflows/TransferFilesWorkflow";
+import { InProgressFilesWorkflow } from "../Import/workflows/InProgressFilesWorkflow";
+import { CreateFoldersByPlatformInfoTask } from "../Import/workflows/tasks/CreateFoldersByPlatformInfoTask";
+import { CopyFilesToBackupFolderTask } from "../Import/workflows/tasks/CopyFilesToBackupFolderTask";
+import { CopyFilesToInProgressFolderTask } from "../Import/workflows/tasks/CopyFilesToInProgressFolderTask";
+import { StructureNameInProgressFilesTask } from "../Import/workflows/tasks/StructureNameInProgressFilesTask";
+import { FilterFilesByExtensionTask } from "../Import/workflows/tasks/FilterFilesByExtensionTask";
+import { GetFilesTask } from "../Import/workflows/tasks/GetFilesTask";
 
 export const copyFileToLocalFolder = async (
   file: any,
@@ -81,7 +88,7 @@ export function inProgressfolderHandler(
   return finalFileName;
 }
 
-export function exportFilesFunction(
+export async function exportFilesFunction(
   sourceFolder: string,
   destFolder: string,
   date: string,
@@ -90,87 +97,24 @@ export function exportFilesFunction(
   tailNumber: string,
   extensionsConfig: Array<string>
 ) {
+  let transferFilesWorkflow = new TransferFilesWorkflow(
+    new CreateFoldersByPlatformInfoTask(),
+    new CopyFilesToBackupFolderTask(),
+    new StructureNameInProgressFilesTask(),
+    new GetFilesTask(),
+    new FilterFilesByExtensionTask(),
+    new CopyFilesToInProgressFolderTask()
+  );
+
   if (sourceFolder.trim().length !== 0) {
-    // 1. creates folder with structure by platform & Tail# then by Date and then by Time
-    let finalFolder: string = backupfolderHandler(
-      destFolder,
-      date,
-      time,
-      platform,
-      tailNumber
-    );
-
-    // 2. copy from usb to created backup folder
-    copyFileToBackupTask(sourceFolder, finalFolder);
-
-    // 3. copy files by extentions from appsettings that need to be send to kafka to InProgress folder
-    copyFileToInProgressTask(
+    await transferFilesWorkflow.execute(
       sourceFolder,
       destFolder,
-      extensionsConfig,
       date,
       time,
       platform,
-      tailNumber
+      tailNumber,
+      extensionsConfig
     );
   }
-}
-
-export function copyFileToBackupTask(sourceFolder: string, destFolder: string) {
-  console.log(sourceFolder, destFolder);
-  try {
-    fs.cp(sourceFolder, destFolder, { recursive: true }, (error) => {
-      if (error) console.error(error);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export function copyFileToInProgressTask(
-  sourceFolder: string,
-  destFolder: string,
-  extensionsConfig: Array<string>,
-  date: string,
-  time: string,
-  platform: string,
-  tailNumber: string
-) {
-  const inProgressFolder = `${destFolder}inProgress\\`;
-
-  if (!fs.existsSync(inProgressFolder)) {
-    fs.mkdirSync(inProgressFolder, { recursive: true });
-  }
-  const files = fs
-    .readdirSync(sourceFolder)
-    .filter((file) => {
-      if (path.extname(file) === "")
-        copyFileToInProgressTask(
-          `${sourceFolder}\\${file}`,
-          destFolder,
-          extensionsConfig,
-          date,
-          time,
-          platform,
-          tailNumber
-        );
-      else {
-        return extensionsConfig.includes(path.extname(file));
-      }
-    })
-    .map((file) => {
-      let finalFileName = inProgressfolderHandler(
-        inProgressFolder,
-        date,
-        time,
-        platform,
-        tailNumber,
-        file
-      );
-      const source = `${sourceFolder}\\${file}`;
-      const dest = `${inProgressFolder}\\${finalFileName}`;
-      fs.copyFile(source, dest, (error) => {
-        if (error) console.error(error);
-      });
-    });
 }
