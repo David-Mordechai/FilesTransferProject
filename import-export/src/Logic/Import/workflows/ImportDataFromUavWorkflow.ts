@@ -5,29 +5,15 @@ import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
 
-export class TransferFilesWorkflow {
-  createFoldersByPlatformInfoTask: ICreateFoldersByPlatformInfoTask;
-  copyFilesToBackupFolderTask: ICopyFilesToBackupFolderTask;
-  structureNameInProgressFilesTask: IStructureNameInProgressFilesTask;
-  getFilesTask: IGetFilesTask;
-  filterFilesByExtensionTask: IFilterFilesByExtensionTask;
-  copyFilesToInProgressFolderTask: ICopyFilesToInProgressFolderTask;
-
+export class ImportDataFromUavWorkflow {
   constructor(
-    createFoldersByPlatformInfoTask: ICreateFoldersByPlatformInfoTask,
-    copyFilesToBackupFolderTask: ICopyFilesToBackupFolderTask,
-    structureNameInProgressFilesTask: IStructureNameInProgressFilesTask,
-    getFilesTask: IGetFilesTask,
-    filterFilesByExtensionTask: IFilterFilesByExtensionTask,
-    copyFilesToInProgressFolderTask: ICopyFilesToInProgressFolderTask
-  ) {
-    this.createFoldersByPlatformInfoTask = createFoldersByPlatformInfoTask;
-    this.copyFilesToBackupFolderTask = copyFilesToBackupFolderTask;
-    this.structureNameInProgressFilesTask = structureNameInProgressFilesTask;
-    this.getFilesTask = getFilesTask;
-    this.filterFilesByExtensionTask = filterFilesByExtensionTask;
-    this.copyFilesToInProgressFolderTask = copyFilesToInProgressFolderTask;
-  }
+    private createFoldersByPlatformInfoTask: ICreateFoldersByPlatformInfoTask,
+    private copyFilesToBackupFolderTask: ICopyFilesToBackupFolderTask,
+    private structureNameInProgressFilesTask: IStructureNameInProgressFilesTask,
+    private getFilesTask: IGetFilesTask,
+    private filterFilesByExtensionTask: IFilterFilesByExtensionTask,
+    private copyFilesToInProgressFolderTask: ICopyFilesToInProgressFolderTask
+  ) {}
 
   public async execute(
     sourceFolder: string,
