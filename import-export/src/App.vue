@@ -1,9 +1,7 @@
+
 <template>
   <v-card>
     <div id="main">
-      <!-- <div>
-        <ActionSelector v-if="sourceFolder !== ''"></ActionSelector>
-      </div> -->
 
       <div v-if="connectedUsb?.isConnected === false">
         <h1 class="noExternalDrive">Please attach external storage device to begin.</h1>
@@ -35,7 +33,8 @@ import { ipcRenderer } from "electron";
 import { appSettings } from './models/appSettings';
 import ActionSelector from "./components/ActionSelector.vue";
 import { UsbDevice } from "./models/usbDevice";
-
+import { useRouter } from 'vue-router';
+import router from "@/router";
 
 export default {
   name: "App",
@@ -43,28 +42,28 @@ export default {
   setup() {
     const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
-    const testDevice: UsbDevice = new UsbDevice();
-    testDevice.isConnected = true;
-    testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
-    testDevice.label = "test";
-    const connectedUsb = ref<UsbDevice>(testDevice);
-    // const connectedUsb = ref<UsbDevice>(new UsbDevice());
+    // const testDevice: UsbDevice = new UsbDevice();
+    // testDevice.isConnected = true;
+    // testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
+    // testDevice.label = "test";
+    // const connectedUsb = ref<UsbDevice>(testDevice);
+    const connectedUsb = ref<UsbDevice>(new UsbDevice());
     ipcRenderer.on("usb-state", (_, data: UsbDevice) => {
       externalDrivePath.value = data.path;
-      connectedUsb.value = data
+      connectedUsb.value = data;
+      if (connectedUsb.value.isConnected === false) {
+        router.push("/");
+      }
     });
 
-
+    const router = useRouter();
     const localRootFolder = config.value!.localRootFolder;
     const extensionsConfig: any = config.value?.allowedFiles[0].extentions;
-    console.log(extensionsConfig);
-
 
     const sourceFolder = "C:\\Users\\barnoaa\\Desktop\\Jsons";
     const platforms = ref(config.value!.platforms);
 
     const externalDrivePath = ref('');
-
 
     const platformInfoComponent = ref();
     const selectedPlatform = ref();

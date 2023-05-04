@@ -6,6 +6,8 @@ import * as VueRouters from "vue-router";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
 import ActionSelector from "./components/ActionSelector.vue";
+
+import getRoutes from "./router/router";
 // Vuetify
 import "vuetify/styles";
 import { createVuetify, ThemeDefinition } from "vuetify";
@@ -49,21 +51,7 @@ const vuetify = createVuetify({
   },
 });
 
-const routes = [
-  { path: "/", name: "ActionSelector", component: ActionSelector },
-
-  {
-    path: "/",
-    name: "Export",
-    component: ExportFiles,
-  },
-  {
-    path: "/import",
-    name: "Import",
-    component: ImportFiles,
-  },
-];
-
+let routes = getRoutes();
 const router = VueRouters.createRouter({
   history: VueRouters.createWebHashHistory(),
   routes,

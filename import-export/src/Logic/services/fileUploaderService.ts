@@ -2,13 +2,13 @@ import { deepStrictEqual } from "assert";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import { ImportDataFromUavWorkflow } from "../Import/workflows/ImportDataFromUavWorkflow";
-import { CreateFoldersByPlatformInfoTask } from "../Import/workflows/tasks/CreateFoldersByPlatformInfoTask";
-import { CopyFilesToBackupFolderTask } from "../Import/workflows/tasks/CopyFilesToBackupFolderTask";
-import { CopyFilesToInProgressFolderTask } from "../Import/workflows/tasks/CopyFilesToInProgressFolderTask";
-import { StructureNameInProgressFilesTask } from "../Import/workflows/tasks/StructureNameInProgressFilesTask";
-import { FilterFilesByExtensionTask } from "../Import/workflows/tasks/FilterFilesByExtensionTask";
-import { GetFilesTask } from "../Import/workflows/tasks/GetFilesTask";
+import { ImportUavDataWorkflow } from "../UavData/workflows/ImportUavDataWorkflow";
+import { CreateFoldersByPlatformInfoTask } from "../UavData/workflows/tasks/CreateFoldersByPlatformInfoTask";
+import { CopyFilesToBackupFolderTask } from "../UavData/workflows/tasks/CopyFilesToBackupFolderTask";
+import { CopyFilesToInProgressFolderTask } from "../UavData/workflows/tasks/CopyFilesToInProgressFolderTask";
+import { StructureNameInProgressFilesTask } from "../UavData/workflows/tasks/StructureNameInProgressFilesTask";
+import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFilesByExtensionTask";
+import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 
 // export const copyFileToLocalFolder = async (
 //   file: any,
