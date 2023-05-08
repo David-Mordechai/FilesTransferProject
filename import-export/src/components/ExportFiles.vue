@@ -67,9 +67,7 @@ export default {
             context.emit("getTimes", platform, tailNumber, date);
         }
 
-        function goHome() {
-            //      this.$router.push("/");
-        }
+
 
         return { PlatformInfo, date, datesList, timesList, time, updateExportPlatformInfo, exportFiles, getTimes, goHome }
 

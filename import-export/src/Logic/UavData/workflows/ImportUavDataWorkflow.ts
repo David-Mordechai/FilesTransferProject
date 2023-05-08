@@ -5,8 +5,8 @@ import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
 
-export class ImportDataFromUavWorkflow {
-  constructor(
+export class ImportUavDataWorkflow {
+  public constructor(
     private createFoldersByPlatformInfoTask: ICreateFoldersByPlatformInfoTask,
     private copyFilesToBackupFolderTask: ICopyFilesToBackupFolderTask,
     private structureNameInProgressFilesTask: IStructureNameInProgressFilesTask,

@@ -41,9 +41,6 @@ import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import Export from "./components/Export.vue";
-import {
-  uploadFilesFunction, retryUploadFunction
-} from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 import Failures from "./components/Failures.vue";
 const { unionBy } = require("lodash");
@@ -58,7 +55,7 @@ export default {
     config.value = ipc.sendSync("getConfig");
 
     const failuresFilesList = ref([]);
-    const localRootFolder = config.value.localRootFolder;
+    // const localRootFolder = config.value.localRootFolder;
 
     const platforms = ref(config.value.platforms);
 
@@ -143,29 +140,29 @@ export default {
       );
     }
 
-    async function uploadFiles() {
-      await uploadFilesFunction(uploadStatus,
-        progressPercent,
-        statusSummary,
-        selectedFiles,
-        selectedPlatform,
-        selectedTailNumber,
-        selectedDate,
-        localRootFolder)
-    }
+    // async function uploadFiles() {
+    //   await uploadFilesFunction(uploadStatus,
+    //     progressPercent,
+    //     statusSummary,
+    //     selectedFiles,
+    //     selectedPlatform,
+    //     selectedTailNumber,
+    //     selectedDate,
+    //     localRootFolder)
+    // }
 
-    async function retryUpload() {
-      await retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
-      let failuresFiles = ipc.sendSync("failure-files");
+    // async function retryUpload() {
+    //   await retryUploadFunction(uploadStatus, progressPercent, statusSummary, failuresFilesList)
+    //   let failuresFiles = ipc.sendSync("failure-files");
 
-      failuresFilesList.value = failuresFiles;
+    //   failuresFilesList.value = failuresFiles;
 
-      if (failuresFilesList.value.length === 0) {
-        openFailure.value = false;
-        reset();
+    //   if (failuresFilesList.value.length === 0) {
+    //     openFailure.value = false;
+    //     reset();
 
-      }
-    }
+    //   }
+    // }
 
     return {
       selectedFiles,
@@ -176,10 +173,10 @@ export default {
       platformInfoComponent,
       updateSelectedFileList,
       updatePlatformInfo,
-      uploadFiles,
+      // uploadFiles,
       removeFile,
       reset,
-      retryUpload,
+      // retryUpload,
       openFailure,
       OpenFailures, failuresFilesList,
       Routes

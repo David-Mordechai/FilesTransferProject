@@ -52,11 +52,6 @@ import SideBar from "./components/SideBar.vue";
 import FilesListTable from "./components/FilesListTable.vue";
 import TitleBar from "./components/TitleBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
-import {
-  uploadFile,
-  copyFileToLocalFolder,
-  deleteFileFromSourceFolder,
-} from "./services/fileUploaderService";
 import { uploadState, actionStatus } from "./services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
@@ -128,7 +123,7 @@ export default {
 
       selectedFiles.value = unionBy(newFiles, selectedFiles.value, "path").sort(
         function (a: any, b: any) {
-          const nameA = a.name.toUpperCase(); 
+          const nameA = a.name.toUpperCase();
           const nameB = b.name.toUpperCase();
           if (nameA < nameB) {
             return -1;

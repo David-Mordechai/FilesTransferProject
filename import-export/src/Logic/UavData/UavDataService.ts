@@ -1,7 +1,3 @@
-import { deepStrictEqual } from "assert";
-import axios from "axios";
-import fs from "fs";
-import path from "path";
 import { ImportUavDataWorkflow } from "../UavData/workflows/ImportUavDataWorkflow";
 import { CreateFoldersByPlatformInfoTask } from "../UavData/workflows/tasks/CreateFoldersByPlatformInfoTask";
 import { CopyFilesToBackupFolderTask } from "../UavData/workflows/tasks/CopyFilesToBackupFolderTask";
@@ -10,30 +6,7 @@ import { StructureNameInProgressFilesTask } from "../UavData/workflows/tasks/Str
 import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFilesByExtensionTask";
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 
-// export const copyFileToLocalFolder = async (
-//   file: any,
-//   localRootFolder: string
-// ) => {
-//   let localFilePath: string = `${localRootFolder}${file.name}`;
-//   try {
-//     if (!fs.existsSync(localRootFolder)) {
-//       fs.mkdirSync(localRootFolder, { recursive: true });
-//     }
-
-//     fs.copyFileSync(file.path, localFilePath);
-
-//     return { copyStatus: true, copyError: "", localFilePath };
-//   } catch (error) {
-//     console.log(error);
-//     return {
-//       copyStatus: false,
-//       copyError: `Failed copy file ${file.name} to local folder`,
-//       localFilePath: "",
-//     };
-//   }
-// };
-
-export async function exportFilesFunction(
+export default async function importData(
   sourceFolder: string,
   destFolder: string,
   date: string,
@@ -42,7 +15,7 @@ export async function exportFilesFunction(
   tailNumber: string,
   extensionsConfig: Array<string>
 ) {
-  let importDataFromUavWorkflow = new ImportDataFromUavWorkflow(
+  let ImportWorkflow = new ImportUavDataWorkflow(
     new CreateFoldersByPlatformInfoTask(),
     new CopyFilesToBackupFolderTask(),
     new StructureNameInProgressFilesTask(),
@@ -52,7 +25,7 @@ export async function exportFilesFunction(
   );
 
   if (sourceFolder.trim().length !== 0) {
-    await importDataFromUavWorkflow.execute(
+    await ImportWorkflow.execute(
       sourceFolder,
       destFolder,
       date,
@@ -62,4 +35,18 @@ export async function exportFilesFunction(
       extensionsConfig
     );
   }
+}
+
+export function getDatesByPlatformInfo(platform: string, tailNumber: string) {
+  selectedPlatform.value = platform;
+  selectedTailNumber.value = tailNumber;
+
+  const details = ipcRenderer.sendSync(
+    "PlatformDetailsQuery",
+    selectedPlatform.value,
+    selectedTailNumber.value
+  );
+  console.log(details);
+
+  datesList.value = details;
 }

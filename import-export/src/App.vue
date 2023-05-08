@@ -24,9 +24,7 @@ import ProgressBar from "./components/ProgressBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
-import {
-  exportFilesFunction
-} from "./Logic/services/fileUploaderService";
+import importData from "./Logic/UavData/UavDataService";
 import { uploadState, actionStatus } from "./Logic/services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
@@ -42,12 +40,12 @@ export default {
   setup() {
     const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
-    // const testDevice: UsbDevice = new UsbDevice();
-    // testDevice.isConnected = true;
-    // testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
-    // testDevice.label = "test";
-    // const connectedUsb = ref<UsbDevice>(testDevice);
-    const connectedUsb = ref<UsbDevice>(new UsbDevice());
+    const testDevice: UsbDevice = new UsbDevice();
+    testDevice.isConnected = true;
+    testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
+    testDevice.label = "test";
+    const connectedUsb = ref<UsbDevice>(testDevice);
+    // const connectedUsb = ref<UsbDevice>(new UsbDevice());
     ipcRenderer.on("usb-state", (_, data: UsbDevice) => {
       externalDrivePath.value = data.path;
       connectedUsb.value = data;
@@ -108,7 +106,6 @@ export default {
 
       const details = ipcRenderer.sendSync("PlatformDetailsQuery", selectedPlatform.value, selectedTailNumber.value)
       console.log(details);
-      console.log(selectedPlatform.value, selectedTailNumber.value);
 
       datesList.value = details;
     }
@@ -165,7 +162,7 @@ export default {
       console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
       console.log(sourceFolder);
 
-      await exportFilesFunction(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
+      await importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
 
     }
     return {
