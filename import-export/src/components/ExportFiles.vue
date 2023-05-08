@@ -5,12 +5,12 @@
         </v-btn>
     </div>
     <div>
-        <PlatformInfo :platforms="platforms" @updateExportPlatformInfo="updateExportPlatformInfo"></PlatformInfo>
+        <PlatformInfo :platforms="platforms" @getDatesByPlatformInfo="getDatesByPlatformInfo"></PlatformInfo>
     </div>
     <v-row>
         <v-col>
-            <v-select v-model="date" :items="datesList" item-title="value" @getTimes="getTimes" item-value="key" clearable
-                density="compact" label="Choose Date" persistent-hint single-line></v-select>
+            <v-select v-model="date" :items="datesList" item-title="value" item-value="key" clearable density="compact"
+                label="Choose Date" persistent-hint single-line></v-select>
         </v-col>
         <v-col>
             <v-select v-model="time" :items="timesList" item-title="value" item-value="key" clearable density="compact"
@@ -31,8 +31,8 @@ import { watch } from 'vue';
 import { platform } from 'os';
 export default {
     name: `ExportFiles`,
-    props: ['platforms', 'updateExportPlatformInfo', 'updatePlatformInfo', 'dates', 'time', 'datesList', 'timesList', 'getTimes'],
-    emits: ['updateExportPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimes'],
+    props: ['platforms', 'getDatesByPlatformInfo', 'updatePlatformInfo', 'dates', 'time', 'datesList', 'timesList', 'getTimesByDates'],
+    emits: ['getDatesByPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimesByDates', 'importFiles'],
     components: { PlatformInfo },
     setup(props, context) {
         const datesList = computed(() => {
@@ -43,33 +43,31 @@ export default {
             return props.timesList
         });
 
-        watch(
-            [datesList],
-            ([newDate]) => {
-                if (newDate) {
-                    context.emit("getTimes");
-                }
-            }
-        );
 
         const date = ref()
         const time = ref()
+
+        watch(date, (newValue) => {
+            if (newValue) {
+                console.log("New value");
+                context.emit("getTimesByDates", selectedPlatform.value, selectedTailNumber.value, date);
+                console.log();
+            }
+        })
 
         function exportFiles(date: string, time: string) {
             context.emit('exportFiles', date, time);
         }
 
-        function updateExportPlatformInfo(platform: string, tailNumber: number) {
-            context.emit("updateExportPlatformInfo", platform, tailNumber);
+        function getDatesByPlatformInfo(platform: string, tailNumber: number) {
+            context.emit("getDatesByPlatformInfo", platform, tailNumber);
         }
 
-        function getTimes(platform: string, tailNumber: number, date: string) {
-            context.emit("getTimes", platform, tailNumber, date);
+        function getTimesByDates(platform: string, tailNumber: number, date: string) {
+            context.emit("getTimesByDates", platform, tailNumber, date);
         }
 
-
-
-        return { PlatformInfo, date, datesList, timesList, time, updateExportPlatformInfo, exportFiles, getTimes, goHome }
+        return { PlatformInfo, date, datesList, timesList, time, getDatesByPlatformInfo, exportFiles, getTimesByDates }
 
     }
 }

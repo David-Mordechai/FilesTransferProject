@@ -5,7 +5,8 @@ import { CopyFilesToInProgressFolderTask } from "../UavData/workflows/tasks/Copy
 import { StructureNameInProgressFilesTask } from "../UavData/workflows/tasks/StructureNameInProgressFilesTask";
 import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFilesByExtensionTask";
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
-
+import { CopyFilesToUsbTask } from "../UavData/workflows/tasks/CopyFilesToUsbTask";
+import { ipcRenderer } from "electron";
 export default async function importData(
   sourceFolder: string,
   destFolder: string,
@@ -37,16 +38,14 @@ export default async function importData(
   }
 }
 
-export function getDatesByPlatformInfo(platform: string, tailNumber: string) {
-  selectedPlatform.value = platform;
-  selectedTailNumber.value = tailNumber;
-
-  const details = ipcRenderer.sendSync(
-    "PlatformDetailsQuery",
-    selectedPlatform.value,
-    selectedTailNumber.value
-  );
-  console.log(details);
-
-  datesList.value = details;
+export function exportData(
+  usbFolder: string,
+  platform: string,
+  tailNumber: string,
+  date: string,
+  time: string,
+  extensionsConfig: Array<string>
+) {
+  let exportDataWorkflow = new exportDataWorkflow(new CopyFilesToUsbTask());
+  exportDataWorkflow.execute(platform, tailNumber, date, time);
 }

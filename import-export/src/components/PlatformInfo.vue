@@ -18,7 +18,7 @@ import { ref, computed, watch } from 'vue'
 export default {
     name: 'platform-info',
     props: ['platforms'],
-    emits: ['updatePlatformInfo', 'updateExportPlatformInfo'],
+    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo'],
     setup(props, context) {
         const platformsList = ref(props.platforms);
         const tailNumber = ref()
@@ -50,7 +50,7 @@ export default {
                 console.log(`updatePlatformInfo: platform:${selectedPlatform.value}, tail: ${tailNumber.value}`);
 
                 context.emit('updatePlatformInfo', selectedPlatform.value, tailNumber.value)
-                context.emit('updateExportPlatformInfo', selectedPlatform.value, tailNumber.value)
+                context.emit('getDatesByPlatformInfo', selectedPlatform.value, tailNumber.value)
 
             }
             else {

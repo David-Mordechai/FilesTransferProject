@@ -1,5 +1,14 @@
-export class ExportUavDataWorkFlow {
-  constructor() {}
+import { ICopyFilesToUsbTask } from "./tasks/interfaces/ICopyFilesToUsbTask";
 
-  public execute() {}
+export class ExportUavDataWorkFlow {
+  public constructor(private copyFilesToUsbTask: ICopyFilesToUsbTask) {}
+
+  public execute(
+    platform: string,
+    tailNumber: string,
+    date: string,
+    time: string
+  ) {
+    copyFilesToUsbTask.copy();
+  }
 }

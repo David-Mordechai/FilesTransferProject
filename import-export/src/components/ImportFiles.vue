@@ -15,7 +15,7 @@
         <input id="time" class="data" type="time" v-model="time">
     </v-row>
     <div class="uploadBtn">
-        <v-btn @click="exportFiles" rounded="sm" color="primary">
+        <v-btn @click="importFiles" rounded="sm" color="primary">
             Import
         </v-btn>
     </div>
@@ -26,8 +26,8 @@ import { ref, watch } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
 export default {
     name: `ImportFiles`,
-    props: ['platforms', 'updatePlatformInfo', 'exportFiles', 'updateExportPlatformInfo', 'datesList', 'timesList'],
-    emits: ['updatePlatformInfo', 'updateExportPlatformInfo', "exportFiles", 'getTimes'],
+    props: ['platforms', 'updatePlatformInfo', 'importFiles', 'exportFiles', 'getDatesByPlatformInfo', 'datesList', 'timesList'],
+    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimes', 'exportFiles'],
     components: { PlatformInfo },
 
     setup(props, context) {
@@ -35,15 +35,15 @@ export default {
         const date = ref();
         const time = ref();
 
-        function exportFiles() {
-            context.emit("exportFiles", date.value, time.value);
+        function importFiles() {
+            context.emit("importFiles", date.value, time.value);
         }
 
         function updatePlatformInfo(platform: string, tailNumber: number) {
             context.emit("updatePlatformInfo", platform, tailNumber);
         }
 
-        return { PlatformInfo, date, time, exportFiles, updatePlatformInfo }
+        return { PlatformInfo, date, time, importFiles, updatePlatformInfo }
 
     }
 }

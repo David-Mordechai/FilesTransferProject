@@ -9,9 +9,9 @@
 
       <div v-if="connectedUsb?.isConnected">
         <h2>External storage device attached {{ connectedUsb.label }}</h2>
-        <router-view @exportFiles="exportFiles" :platforms="platforms" :datesList="datesList"
-          @updatePlatformInfo="updatePlatformInfo" @updateExportPlatformInfo="updateExportPlatformInfo"
-          @getTimes="getTimes" :timesList="timesList"></router-view>
+        <router-view @importFiles="importFiles" @exportFiles="exportFiles" :platforms="platforms" :datesList="datesList"
+          @updatePlatformInfo="updatePlatformInfo" @getDatesByPlatformInfo="getDatesByPlatformInfo"
+          @getTimesByDates="getTimesByDates" :timesList="timesList"></router-view>
       </div>
     </div>
   </v-card>
@@ -25,6 +25,7 @@ import PlatformInfo from "./components/PlatformInfo.vue";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
 import importData from "./Logic/UavData/UavDataService";
+import exportData from "./Logic/UavData/UavDataService";
 import { uploadState, actionStatus } from "./Logic/services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
@@ -100,28 +101,13 @@ export default {
       }
     );
 
-    function updateExportPlatformInfo(platform: string, tailNumber: number) {
-      selectedPlatform.value = platform;
-      selectedTailNumber.value = tailNumber;
-
-      const details = ipcRenderer.sendSync("PlatformDetailsQuery", selectedPlatform.value, selectedTailNumber.value)
-      console.log(details);
-
-      datesList.value = details;
-    }
-
-    function getTimes(platform: string, tailNumber: number, date: string) {
-      const times = ipcRenderer.sendSync("getTimes", platform, tailNumber, date);
-      console.log(times);
-
-      timesList.value = times;
-    }
     function updatePlatformInfo(platform: string, tailNumber: number) {
       selectedPlatform.value = platform;
       selectedTailNumber.value = tailNumber;
 
       console.log(selectedPlatform.value, selectedTailNumber.value);
     }
+
     function updateSelectedFileList(files: any) {
       let newFiles = files.map((file: any) => {
         return {
@@ -151,18 +137,46 @@ export default {
       );
     }
 
-    function removeFile(filePath: string) {
-      selectedFiles.value = selectedFiles.value.filter(
-        (file: any) => file.path !== filePath
+
+    function getDatesByPlatformInfo(
+      platform: string,
+      tailNumber: number
+    ): [] {
+      const details = ipcRenderer.sendSync(
+        "PlatformDetailsQuery",
+        platform,
+        tailNumber
       );
+      console.log(details);
+
+      datesList.value = details;
     }
 
+    function getTimesByDates(
+      platform: string,
+      tailNumber: number,
+      date: string
+    ): [] {
+      const times = ipcRenderer.sendSync("getTimes", platform, tailNumber, date);
+      console.log(times);
+
+      timesList.value = times;
+    }
+
+
+    async function importFiles(date: string, time: string) {
+      console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
+      console.log(sourceFolder);
+
+      await importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
+
+    }
 
     async function exportFiles(date: string, time: string) {
       console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
       console.log(sourceFolder);
 
-      await importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
+      await exportData(sourceFolder, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
 
     }
     return {
@@ -175,16 +189,16 @@ export default {
       platformInfoComponent,
       updateSelectedFileList,
       updatePlatformInfo,
-      removeFile,
       reset,
-      exportFiles,
+      importFiles,
       externalDrivePath,
       extensionsConfig,
       sourceFolder,
-      datesList,
-      getTimes, timesList,
-      updateExportPlatformInfo,
-      connectedUsb
+      datesList, timesList,
+      connectedUsb,
+      exportFiles,
+      getTimesByDates,
+      getDatesByPlatformInfo
     };
   },
 };
