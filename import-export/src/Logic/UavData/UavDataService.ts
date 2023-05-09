@@ -7,7 +7,12 @@ import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFil
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 import { CopyFilesToUsbTask } from "../UavData/workflows/tasks/CopyFilesToUsbTask";
 import { ipcRenderer } from "electron";
-export default async function importData(
+
+const str = "UavDataService";
+
+export default str;
+
+export async function importData(
   sourceFolder: string,
   destFolder: string,
   date: string,

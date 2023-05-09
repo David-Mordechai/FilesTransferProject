@@ -142,6 +142,8 @@ export default {
       platform: string,
       tailNumber: number
     ): [] {
+      selectedPlatform.value = platform;
+      selectedTailNumber.value = tailNumber;
       const details = ipcRenderer.sendSync(
         "PlatformDetailsQuery",
         platform,
@@ -153,16 +155,14 @@ export default {
     }
 
     function getTimesByDates(
-      platform: string,
-      tailNumber: number,
       date: string
     ): [] {
-      const times = ipcRenderer.sendSync("getTimes", platform, tailNumber, date);
+      const path = `${localRootFolder}backup\\${selectedPlatform.value}-${selectedTailNumber.value}\\${date}`;
+      const times = ipcRenderer.sendSync("getTimes", path);
       console.log(times);
 
       timesList.value = times;
     }
-
 
     async function importFiles(date: string, time: string) {
       console.log(date, time, selectedPlatform.value, selectedTailNumber.value);

@@ -10,7 +10,7 @@
     <v-row>
         <v-col>
             <v-select v-model="date" :items="datesList" item-title="value" item-value="key" clearable density="compact"
-                label="Choose Date" persistent-hint single-line></v-select>
+                @update:modelValue="getTimesByDates" label="Choose Date" persistent-hint single-line></v-select>
         </v-col>
         <v-col>
             <v-select v-model="time" :items="timesList" item-title="value" item-value="key" clearable density="compact"
@@ -47,13 +47,6 @@ export default {
         const date = ref()
         const time = ref()
 
-        watch(date, (newValue) => {
-            if (newValue) {
-                console.log("New value");
-                context.emit("getTimesByDates", selectedPlatform.value, selectedTailNumber.value, date);
-                console.log();
-            }
-        })
 
         function exportFiles(date: string, time: string) {
             context.emit('exportFiles', date, time);
@@ -63,8 +56,8 @@ export default {
             context.emit("getDatesByPlatformInfo", platform, tailNumber);
         }
 
-        function getTimesByDates(platform: string, tailNumber: number, date: string) {
-            context.emit("getTimesByDates", platform, tailNumber, date);
+        function getTimesByDates(date: string) {
+            context.emit("getTimesByDates", date);
         }
 
         return { PlatformInfo, date, datesList, timesList, time, getDatesByPlatformInfo, exportFiles, getTimesByDates }

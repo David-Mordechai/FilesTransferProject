@@ -14,6 +14,7 @@ export class CreateFoldersByPlatformInfoTask
     tailNumber: string
   ): string {
     let platformTaiNumber = `${platform}-${tailNumber}`;
+    if (time === null) return;
     let timeSplit = time.split(":");
     let fixedTime = `${timeSplit[0]}-${timeSplit[1]}`;
 
