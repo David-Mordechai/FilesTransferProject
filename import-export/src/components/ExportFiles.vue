@@ -31,7 +31,7 @@ import { watch } from 'vue';
 import { platform } from 'os';
 export default {
     name: `ExportFiles`,
-    props: ['platforms', 'getDatesByPlatformInfo', 'updatePlatformInfo', 'dates', 'time', 'datesList', 'timesList', 'getTimesByDates'],
+    props: ['platforms', 'getDatesByPlatformInfo', 'updatePlatformInfo', 'dates', 'datesList', 'timesList', 'getTimesByDates'],
     emits: ['getDatesByPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimesByDates', 'importFiles'],
     components: { PlatformInfo },
     setup(props, context) {
@@ -48,8 +48,8 @@ export default {
         const time = ref()
 
 
-        function exportFiles(date: string, time: string) {
-            context.emit('exportFiles', date, time);
+        function exportFiles() {
+            context.emit('exportFiles', date.value, time.value);
         }
 
         function getDatesByPlatformInfo(platform: string, tailNumber: number) {

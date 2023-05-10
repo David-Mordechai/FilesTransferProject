@@ -24,8 +24,7 @@ import ProgressBar from "./components/ProgressBar.vue";
 import PlatformInfo from "./components/PlatformInfo.vue";
 import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
-import importData from "./Logic/UavData/UavDataService";
-import exportData from "./Logic/UavData/UavDataService";
+import { UavDataService } from "./Logic/UavData/UavDataService";
 import { uploadState, actionStatus } from "./Logic/services/enums";
 import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
@@ -41,12 +40,13 @@ export default {
   setup() {
     const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
-    const testDevice: UsbDevice = new UsbDevice();
-    testDevice.isConnected = true;
-    testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
-    testDevice.label = "test";
-    const connectedUsb = ref<UsbDevice>(testDevice);
-    // const connectedUsb = ref<UsbDevice>(new UsbDevice());
+    // const testDevice: UsbDevice = new UsbDevice();
+    // testDevice.isConnected = true;
+    // testDevice.path = "C:\\Users\\barnoaa\\Desktop\\Jsons";
+    // testDevice.label = "test";
+    // const connectedUsb = ref<UsbDevice>(testDevice);
+    const connectedUsb = ref<UsbDevice>(new UsbDevice());
+
     ipcRenderer.on("usb-state", (_, data: UsbDevice) => {
       externalDrivePath.value = data.path;
       connectedUsb.value = data;
@@ -68,7 +68,7 @@ export default {
     const selectedPlatform = ref();
     const selectedTailNumber = ref();
     const selectedFiles = ref();
-    selectedFiles.value = []
+    selectedFiles.value = [];
 
     const progressTotal = ref(0);
     const progressCurrent = ref(0);
@@ -77,6 +77,7 @@ export default {
     const uploadStatus = ref();
     uploadStatus.value = uploadState.NONE;
 
+    const uavDataService = new UavDataService();
     const datesList = ref();
     const timesList = ref();
     function reset() {
@@ -159,24 +160,17 @@ export default {
     ): [] {
       const path = `${localRootFolder}backup\\${selectedPlatform.value}-${selectedTailNumber.value}\\${date}`;
       const times = ipcRenderer.sendSync("getTimes", path);
-      console.log(times);
-
       timesList.value = times;
     }
 
     async function importFiles(date: string, time: string) {
-      console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
-      console.log(sourceFolder);
-
-      await importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
-
+      await uavDataService.importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
     }
 
-    async function exportFiles(date: string, time: string) {
-      console.log(date, time, selectedPlatform.value, selectedTailNumber.value);
-      console.log(sourceFolder);
+    function exportFiles(date: string, time: string) {
+      console.log(connectedUsb.value.path);
 
-      await exportData(sourceFolder, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
+      uavDataService.exportData(localRootFolder, connectedUsb.value.path, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
 
     }
     return {

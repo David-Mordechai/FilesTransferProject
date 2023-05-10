@@ -4,11 +4,16 @@ export class ExportUavDataWorkFlow {
   public constructor(private copyFilesToUsbTask: ICopyFilesToUsbTask) {}
 
   public execute(
+    sourceFolder: string,
     platform: string,
     tailNumber: string,
     date: string,
-    time: string
+    time: string,
+    usbFolder: string
   ) {
-    copyFilesToUsbTask.copy();
+    const path = `${sourceFolder}backup\\${platform}-${tailNumber}\\${date}\\${time}`;
+    console.log(path);
+
+    this.copyFilesToUsbTask.copy(path, usbFolder);
   }
 }

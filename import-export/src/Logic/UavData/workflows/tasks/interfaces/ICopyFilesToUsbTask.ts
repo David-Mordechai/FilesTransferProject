@@ -1,1 +1,3 @@
-export interface ICopyFilesToUsbTask {}
+export interface ICopyFilesToUsbTask {
+  public copy();
+}

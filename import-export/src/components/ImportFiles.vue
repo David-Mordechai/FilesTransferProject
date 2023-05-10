@@ -27,7 +27,7 @@ import PlatformInfo from './PlatformInfo.vue';
 export default {
     name: `ImportFiles`,
     props: ['platforms', 'updatePlatformInfo', 'importFiles', 'exportFiles', 'getDatesByPlatformInfo', 'datesList', 'timesList'],
-    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimes', 'exportFiles'],
+    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimes'],
     components: { PlatformInfo },
 
     setup(props, context) {
