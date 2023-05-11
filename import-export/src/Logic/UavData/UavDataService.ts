@@ -8,11 +8,21 @@ import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFil
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 import { CopyFilesToUsbTask } from "../UavData/workflows/tasks/CopyFilesToUsbTask";
 import { ipcRenderer } from "electron";
+import { BaseUavDataModel } from "../../models/baseUavDataModel";
 
 export class UavDataService {
   constructor() {}
 
   public exportData(
+    //   sourceFolder: string,
+    //   uavData: BaseUavDataModel,
+    //   extensionsConfig: Array<string>
+    // ) {
+    //   let exportDataWorkflow = new ExportUavDataWorkFlow(
+    //     new CopyFilesToUsbTask()
+    //   );
+    //   exportDataWorkflow.execute(sourceFolder, uavData);
+    // }
     sourceFolder: string,
     usbFolder: string,
     platform: string,
@@ -33,14 +43,9 @@ export class UavDataService {
       usbFolder
     );
   }
-
   public async importData(
     sourceFolder: string,
-    destFolder: string,
-    date: string,
-    time: string,
-    platform: string,
-    tailNumber: string,
+    uavData: BaseUavDataModel,
     extensionsConfig: Array<string>
   ) {
     let ImportWorkflow = new ImportUavDataWorkflow(
@@ -51,17 +56,8 @@ export class UavDataService {
       new FilterFilesByExtensionTask(),
       new CopyFilesToInProgressFolderTask()
     );
-
     if (sourceFolder.trim().length !== 0) {
-      await ImportWorkflow.execute(
-        sourceFolder,
-        destFolder,
-        date,
-        time,
-        platform,
-        tailNumber,
-        extensionsConfig
-      );
+      await ImportWorkflow.execute(sourceFolder, uavData, extensionsConfig);
     }
   }
 }

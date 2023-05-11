@@ -4,6 +4,9 @@ import { IStructureNameInProgressFilesTask } from "./tasks/interfaces/IStructure
 import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
+import { CreateBackupFoldersModel } from "../models/createBackupFoldersModel";
+import { StructureNameModel } from "../../models/structureNameModel";
+import { BaseUavDataModel } from "../../models/baseUavDataModel";
 
 export class ImportUavDataWorkflow {
   public constructor(
@@ -17,21 +20,14 @@ export class ImportUavDataWorkflow {
 
   public async execute(
     sourceFolder: string,
-    destFolder: string,
-    date: string,
-    time: string,
-    platform: string,
-    tailNumber: string,
+    baseUavDataModel: BaseUavDataModel,
     extensionsConfig: Array<string>
   ) {
-    let backupFolder = this.createFoldersByPlatformInfoTask.create(
-      destFolder,
-      date,
-      time,
-      platform,
-      tailNumber
-    );
-    this.copyFilesToBackupFolderTask.copy(sourceFolder, backupFolder);
+    let backupFolder =
+      this.createFoldersByPlatformInfoTask.create(baseUavDataModel);
+
+    if (!backupFolder.success) return;
+    this.copyFilesToBackupFolderTask.copy(sourceFolder, backupFolder.value);
 
     let files: string[] = await this.getFilesTask.get(sourceFolder);
 
@@ -39,21 +35,16 @@ export class ImportUavDataWorkflow {
       files,
       extensionsConfig
     );
-
     filteredList.forEach((file) => {
       let finalName = this.structureNameInProgressFilesTask.structureName(
-        destFolder,
-        date,
-        time,
-        platform,
-        tailNumber,
+        baseUavDataModel,
         file
       );
 
       this.copyFilesToInProgressFolderTask.copy(
         sourceFolder,
         finalName,
-        destFolder,
+        baseUavDataModel.destFolder,
         file
       );
     });

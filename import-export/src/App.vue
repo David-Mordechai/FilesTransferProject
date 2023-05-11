@@ -33,6 +33,8 @@ import ActionSelector from "./components/ActionSelector.vue";
 import { UsbDevice } from "./models/usbDevice";
 import { useRouter } from 'vue-router';
 import router from "@/router";
+import { BaseUavDataModel } from "./Logic/UavData/models/baseUavDataModel";
+
 
 export default {
   name: "App",
@@ -164,10 +166,28 @@ export default {
     }
 
     async function importFiles(date: string, time: string) {
-      await uavDataService.importData(sourceFolder, localRootFolder, date, time, selectedPlatform.value, selectedTailNumber.value, extensionsConfig);
+
+      let platform = selectedPlatform.value;
+      let tailNumber = selectedTailNumber.value;
+
+      let importUavData: BaseUavDataModel = {
+        destFolder: localRootFolder,
+        date,
+        time,
+        platform,
+        tailNumber
+      }
+      await uavDataService.importData(sourceFolder, importUavData, extensionsConfig);
     }
 
     function exportFiles(date: string, time: string) {
+      // let destFolder = connectedUsb.value.path;
+      // let platform = selectedPlatform.value;
+      // let tailNumber = selectedTailNumber.value;
+
+      // let exportUavData: BaseUavDataModel = { destFolder, date, time, platform, tailNumber }
+      // uavDataService.exportData(localRootFolder, exportUavData, extensionsConfig);
+
       console.log(connectedUsb.value.path);
 
       uavDataService.exportData(localRootFolder, connectedUsb.value.path, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
