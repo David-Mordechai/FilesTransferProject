@@ -4,7 +4,7 @@ import { IStructureNameInProgressFilesTask } from "./tasks/interfaces/IStructure
 import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
-import { BaseUavDataModel } from "../../models/baseUavDataModel";
+import { BaseUavDataModel } from "../models/baseUavDataModel";
 
 export class ImportUavDataWorkflow {
   public constructor(
@@ -40,7 +40,6 @@ export class ImportUavDataWorkflow {
       );
 
       this.copyFilesToInProgressFolderTask.copy(
-        sourceFolder,
         finalName,
         baseUavDataModel.destFolder,
         file

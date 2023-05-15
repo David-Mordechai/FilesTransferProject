@@ -1,4 +1,4 @@
-import IStructureNameInProgressFilesTask from "./tasks/interfaces/IStructureNameInProgressFilesTask";
+import { IStructureNameInProgressFilesTask } from "./interfaces/IStructureNameInProgressFilesTask";
 import Path from "path";
 import { BaseUavDataModel } from "../../models/baseUavDataModel";
 export class StructureNameInProgressFilesTask

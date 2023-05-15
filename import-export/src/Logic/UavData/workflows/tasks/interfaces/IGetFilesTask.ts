@@ -1,3 +1,3 @@
-export interface IGetFilesTask(){
-    export get(sourceFolder:string): string[] ;
+export interface IGetFilesTask {
+  public get(sourceFolder: string): Promise<string[]>;
 }

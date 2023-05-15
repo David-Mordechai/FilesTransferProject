@@ -1,10 +1,5 @@
+import { BaseUavDataModel } from "../../../models/baseUavDataModel";
+
 export interface IStructureNameInProgressFilesTask {
-  public structureName(
-    destFolder: string,
-    date: string,
-    time: string,
-    platform: string,
-    tailNumber: string,
-    file: string
-  ): string;
+  structureName(uavData: BaseUavDataModel, file: string): string;
 }

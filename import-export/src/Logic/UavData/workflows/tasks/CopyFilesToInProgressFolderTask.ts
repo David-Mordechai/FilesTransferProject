@@ -5,12 +5,7 @@ export class CopyFilesToInProgressFolderTask
 {
   constructor() {}
 
-  public async copy(
-    sourceFolder: string,
-    finalFileName: string,
-    destFolder: string,
-    file: string
-  ): void {
+  public async copy(finalFileName: string, destFolder: string, file: string) {
     const inProgressFolder = `${destFolder}inProgress`;
 
     if (!fs.existsSync(inProgressFolder)) {
