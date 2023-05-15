@@ -1,3 +1,3 @@
 export interface ICopyFilesToUsbTask {
-  public copy();
+  public copy(path: string, destFolder: string): void;
 }

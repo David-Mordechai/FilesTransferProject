@@ -1,6 +1,8 @@
 import fs from "fs";
-import path from "path";
-export class CopyFilesToInProgressFolderTask {
+import { ICopyFilesToInProgressFolderTask } from "./interfaces/ICopyFilesToInProgressFolderTask";
+export class CopyFilesToInProgressFolderTask
+  implements ICopyFilesToInProgressFolderTask
+{
   constructor() {}
 
   public async copy(
@@ -16,9 +18,6 @@ export class CopyFilesToInProgressFolderTask {
     }
     const source = `${file}`;
     const dest = `${inProgressFolder}\\${finalFileName}`;
-
-    console.log(source);
-    console.log(dest);
 
     fs.copyFile(source, dest, (error) => {
       if (error) console.error(error);

@@ -4,12 +4,12 @@
         <!-- <h2 class="title2">Choose your next action:</h2> -->
         <div class="buttons">
             <router-link :to="{ name: 'ActionSelector' }"></router-link>
-            <v-btn>
+            <!-- <v-btn>
                 <router-link :to="{ name: 'Import' }">IMPORT</router-link>
             </v-btn>
             <v-btn>
                 <router-link :to="{ name: 'Export' }">EXPORT</router-link>
-            </v-btn>
+            </v-btn> -->
         </div>
     </div>
 </template>

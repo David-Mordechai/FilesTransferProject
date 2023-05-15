@@ -1,26 +1,20 @@
 <template>
-    <div>
-        <v-btn> <router-link :to="{ name: 'ActionSelector' }">
-                Back</router-link>
-        </v-btn>
-    </div>
-    <div>
-        <PlatformInfo :platforms="platforms" @getDatesByPlatformInfo="getDatesByPlatformInfo"></PlatformInfo>
-    </div>
-    <v-row>
-        <v-col>
-            <v-select v-model="date" :items="datesList" item-title="value" item-value="key" clearable density="compact"
-                @update:modelValue="getTimesByDates" label="Choose Date" persistent-hint single-line></v-select>
-        </v-col>
-        <v-col>
-            <v-select v-model="time" :items="timesList" item-title="value" item-value="key" clearable density="compact"
-                label="Choose Time" persistent-hint single-line></v-select>
-        </v-col>
-    </v-row>
-    <div class="uploadBtn">
-        <v-btn rounded="sm" color="primary" @click="exportFiles">
-            Export
-        </v-btn>
+    <div id="info">
+        <div>
+            <PlatformInfo :platforms="platforms" @getDatesByPlatformInfo="getDatesByPlatformInfo"></PlatformInfo>
+        </div>
+        <v-row>
+            <v-select class="date" v-model="date" :items="datesList" item-title="value" item-value="key" clearable
+                density="compact" @update:modelValue="getTimesByDates" label="Choose Date" persistent-hint
+                single-line></v-select>
+            <v-select class="time" v-model="time" :items="timesList" item-title="value" item-value="key" clearable
+                density="compact" label="Choose Time" persistent-hint single-line></v-select>
+        </v-row>
+        <div class="exportBtn">
+            <v-btn rounded="sm" color="primary" @click="exportFiles">
+                Export
+            </v-btn>
+        </div>
     </div>
 </templatE>
 
@@ -32,7 +26,7 @@ import { platform } from 'os';
 export default {
     name: `ExportFiles`,
     props: ['platforms', 'getDatesByPlatformInfo', 'updatePlatformInfo', 'dates', 'datesList', 'timesList', 'getTimesByDates'],
-    emits: ['getDatesByPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimesByDates', 'importFiles'],
+    emits: ['getDatesByPlatformInfo', 'updatePlatformInfo', 'exportFiles', 'getTimesByDates', 'importFiles', 'getTotal'],
     components: { PlatformInfo },
     setup(props, context) {
         const datesList = computed(() => {
@@ -49,6 +43,7 @@ export default {
 
 
         function exportFiles() {
+            context.emit('getTotal');
             context.emit('exportFiles', date.value, time.value);
         }
 
@@ -67,26 +62,35 @@ export default {
 </script>
 
 <style scoped>
+#info {
+    margin-top: 10%;
+}
+
 .label {
     margin-left: 10px;
     margin-right: 8px;
 }
 
-.uploadBtn {
-    margin-top: 40px;
-    margin-left: 300px;
+.exportBtn {
+    margin-top: 8%;
+    margin-left: 46%;
 }
 
 .date {
-    height: 30px;
-    width: 200px;
     background-color: darkgray;
+    margin-left: 11%;
+    margin-right: 5%;
+    margin-top: 3%;
+    height: 38px;
+    width: 37%;
 }
 
-
 .time {
-    height: 30px;
-    width: 100px;
     background-color: darkgray;
+    margin-right: 11%;
+    height: 38px;
+    margin-top: 3%;
+    width: 36%;
+    position: relative;
 }
 </style>

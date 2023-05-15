@@ -60,7 +60,14 @@ export const addListeners = async (
     event.returnValue = appSettings;
   });
 
-  ipcMain.on("PlatformDetailsQuery", (event, platform, tailNumber) => {
+  ipcMain.on("totalFiles", (event, path) => {
+    fs.readdir(path, function (error, files) {
+      var totalFiles = files.length;
+      event.returnValue = totalFiles;
+    });
+  });
+
+  ipcMain.on("getDatesByPlatformInfo", (event, platform, tailNumber) => {
     const folderName = `${platform}-${tailNumber}`;
 
     if (
@@ -81,37 +88,7 @@ export const addListeners = async (
       event.returnValue = folders;
     }
   });
-
-  ipcMain.on("choose-files", (event) => {
-    const files = dialog.showOpenDialogSync({
-      properties: ["openFile", "multiSelections"],
-      filters: appSettings.allowedFiles,
-    });
-    if (!files) {
-      event.returnValue = [];
-      return;
-    }
-    event.returnValue = files
-      .map((file) => {
-        try {
-          const stats = fs.statSync(file);
-          return {
-            name: path.basename(file),
-            size: stats.isFile() ? stats.size : null,
-            path: file,
-          };
-        } catch {
-          return {
-            name: "",
-            size: null,
-            path: "",
-          };
-        }
-      })
-      .filter((file) => file.size !== null);
-  });
 };
-
 export const removeListeners = () => {
   ipcMain.removeAllListeners();
   mainWin.removeAllListeners();

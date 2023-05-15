@@ -4,8 +4,6 @@ import { IStructureNameInProgressFilesTask } from "./tasks/interfaces/IStructure
 import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
-import { CreateBackupFoldersModel } from "../models/createBackupFoldersModel";
-import { StructureNameModel } from "../../models/structureNameModel";
 import { BaseUavDataModel } from "../../models/baseUavDataModel";
 
 export class ImportUavDataWorkflow {

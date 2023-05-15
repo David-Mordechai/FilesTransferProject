@@ -1,7 +1,6 @@
 import IStructureNameInProgressFilesTask from "./tasks/interfaces/IStructureNameInProgressFilesTask";
 import Path from "path";
-import { StructureNameModel } from "../../models/structureNameModel";
-
+import { BaseUavDataModel } from "../../models/baseUavDataModel";
 export class StructureNameInProgressFilesTask
   implements IStructureNameInProgressFilesTask
 {

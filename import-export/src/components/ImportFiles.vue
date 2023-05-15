@@ -1,23 +1,16 @@
 <template>
-    <div>
-        <v-btn> <router-link :to="{ name: 'ActionSelector' }">
-                Back</router-link>
-        </v-btn>
-    </div>
-    <div>
+    <div id="info">
         <PlatformInfo :platforms="platforms" @updatePlatformInfo="updatePlatformInfo"></PlatformInfo>
-    </div>
-    <v-row>
-        <label for="date" class="label">DATE</label>
-        <input id="date" class="data" type="date" v-model="date">
+        <v-row>
+            <input id="date" type="date" v-model="date">
 
-        <label for="time" class="timeLabel">TIME</label>
-        <input id="time" class="data" type="time" v-model="time">
-    </v-row>
-    <div class="uploadBtn">
-        <v-btn @click="importFiles" rounded="sm" color="primary">
-            Import
-        </v-btn>
+            <input id="time" type="time" v-model="time">
+        </v-row>
+        <div id="importBtn">
+            <v-btn @click="importFiles" rounded="sm" color="primary">
+                Import
+            </v-btn>
+        </div>
     </div>
 </template>
 
@@ -27,7 +20,7 @@ import PlatformInfo from './PlatformInfo.vue';
 export default {
     name: `ImportFiles`,
     props: ['platforms', 'updatePlatformInfo', 'importFiles', 'exportFiles', 'getDatesByPlatformInfo', 'datesList', 'timesList'],
-    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimesByDates'],
+    emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimesByDates', 'getTotal'],
     components: { PlatformInfo },
 
     setup(props, context) {
@@ -36,6 +29,7 @@ export default {
         const time = ref();
 
         function importFiles() {
+            context.emit("getTotal");
             context.emit("importFiles", date.value, time.value);
         }
 
@@ -49,26 +43,33 @@ export default {
 }
 </script>
 
-<style scoped>
-.label {
-    margin-left: 20px;
-    margin-right: 8px;
-}
-
-.uploadBtn {
-    margin-top: 40px;
-    margin-left: 300px;
-}
-
-.data {
-    height: 40px;
-    width: 320px;
-    background-color: darkgray;
-}
+<style scoped>  #importBtn {
+      margin-top: 8%;
+      margin-left: 45.5%;
+  }
 
 
-.timeLabel {
-    margin-left: 20px;
-    margin-right: 10px;
-}
+  #info {
+      margin-top: 10%;
+  }
+
+  #date {
+      background-color: darkgray;
+      margin-left: 11%;
+      margin-right: 5%;
+      width: 37%;
+      height: 38px;
+      margin-top: 3%;
+      position: relative;
+
+  }
+
+  #time {
+      background-color: darkgray;
+      height: 38px;
+      margin-right: 11%;
+      width: 36%;
+      margin-top: 3%;
+      position: relative;
+  }
 </style>

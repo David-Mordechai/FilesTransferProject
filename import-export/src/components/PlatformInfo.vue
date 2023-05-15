@@ -1,14 +1,10 @@
 <template>
     <div class="">
         <v-row>
-            <v-col>
-                <v-text-field v-model="tailNumber" :rules="tailNumberRules" label="Tail Number" required
-                    density="compact"></v-text-field>
-            </v-col>
-            <v-col>
-                <v-select v-model="selectedPlatform" :items="platformsList" item-title="value" item-value="key" clearable
-                    density="compact" label="Choose Platform" persistent-hint single-line></v-select>
-            </v-col>
+            <v-text-field class="tailNumber" v-model="tailNumber" clearable :rules="tailNumberRules" label="Tail Number"
+                required density="compact"></v-text-field>
+            <v-select class="platformInfo" v-model="selectedPlatform" :items="platformsList" item-title="value"
+                item-value="key" clearable density="compact" label="Choose Platform" persistent-hint></v-select>
         </v-row>
     </div>
 </template>
@@ -74,4 +70,15 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style >
+.tailNumber {
+    margin-left: 11%;
+    margin-right: 5%;
+    width: 353px;
+}
+
+.platformInfo {
+    margin-right: 11%;
+    width: 344px;
+}
+</style>

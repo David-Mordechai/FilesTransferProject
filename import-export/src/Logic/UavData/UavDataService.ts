@@ -8,21 +8,12 @@ import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFil
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 import { CopyFilesToUsbTask } from "../UavData/workflows/tasks/CopyFilesToUsbTask";
 import { ipcRenderer } from "electron";
-import { BaseUavDataModel } from "../../models/baseUavDataModel";
+import { BaseUavDataModel } from "../UavData/models/baseUavDataModel";
 
 export class UavDataService {
   constructor() {}
 
   public exportData(
-    //   sourceFolder: string,
-    //   uavData: BaseUavDataModel,
-    //   extensionsConfig: Array<string>
-    // ) {
-    //   let exportDataWorkflow = new ExportUavDataWorkFlow(
-    //     new CopyFilesToUsbTask()
-    //   );
-    //   exportDataWorkflow.execute(sourceFolder, uavData);
-    // }
     sourceFolder: string,
     usbFolder: string,
     platform: string,
