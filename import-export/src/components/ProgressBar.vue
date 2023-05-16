@@ -1,11 +1,8 @@
 <template>
     <div class="progress">
-
         {{ currentFile }} of {{ totalFiles }} Files
-        <v-progress-linear  absolute
-        bottom color="primary" :model-value="percent"></v-progress-linear>
+        <v-progress-linear absolute bottom color="primary" :model-value="percent"></v-progress-linear>
     </div>
-   
 </template>
 
 <script lang="ts">
@@ -18,8 +15,8 @@ export default {
         const percent = computed(() => {
             console.log(props.total);
             console.log(props.current);
-            
-            if(props.total === 0) return 0;
+
+            if (props.total === 0) return 0;
             return props.current / props.total * 100
         })
 
@@ -40,5 +37,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,8 +1,6 @@
-import { ResultModel } from "../../models/resultModel";
-import { CreateBackupFoldersModel } from "../../models/createBackupFoldersModel";
+import { BaseUavDataModel } from "../../../models/baseUavDataModel";
+import { ResultModel } from "../../../models/resultModel";
 
 export interface ICreateFoldersByPlatformInfoTask {
-  export create(
-    createBackupFoldersModel: CreateBackupFoldersModel
-  ): ResultModel;
+  create(createBackupFoldersModel: BaseUavDataModel): ResultModel;
 }

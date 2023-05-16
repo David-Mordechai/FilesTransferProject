@@ -10,7 +10,7 @@ export class CreateFoldersByPlatformInfoTask
 
   public create(createBackupFoldersInfo: BaseUavDataModel): ResultModel {
     let platformTaiNumber = `${createBackupFoldersInfo.platform}-${createBackupFoldersInfo.tailNumber}`;
-    if (createBackupFoldersInfo.time === null) return;
+    if (createBackupFoldersInfo.time === null) return new ResultModel();
     let timeSplit = createBackupFoldersInfo.time.split(":");
     let fixedTime = `${timeSplit[0]}-${timeSplit[1]}`;
 

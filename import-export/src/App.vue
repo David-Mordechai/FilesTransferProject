@@ -5,13 +5,9 @@
       <v-navigation-drawer permanent>
         <v-list density="compact" nav>
           <v-list-item prepend-icon="mdi-import" :disabled="connectedUsb?.isConnected === false">
-            <v-btn>
-              <router-link :to="{ name: 'Import' }">IMPORT</router-link>
-            </v-btn></v-list-item>
+            <v-btn @click="router.push('/import')">Import</v-btn></v-list-item>
           <v-list-item prepend-icon="mdi-export" :disabled="connectedUsb?.isConnected === false">
-            <v-btn>
-              <router-link :to="{ name: 'Export' }">EXPORT</router-link>
-            </v-btn></v-list-item>
+            <v-btn @click="router.push('/export')">Export</v-btn></v-list-item>
         </v-list>
         <v-footer id="footer" style="background-color:#007f61;">
           <div v-if="connectedUsb.isConnected">
@@ -29,10 +25,12 @@
             <h3>External storage device attached {{ connectedUsb.label }}</h3>
           </div>
         </div>
-        <div class="status-bar">
-          <div class="status-summary">{{ statusSummary }}</div>
-          <ProgressBar class="status-progressBar" :total="progressTotal" :current="progressCurrent" />
-        </div>
+        <v-card color="primary" id="progressCard">
+          <div class="status-bar">
+            <div class="status-summary">{{ statusSummary }}</div>
+            <ProgressBar class="status-progressBar" :total="progressTotal" :current="progressCurrent" />
+          </div>
+        </v-card>
       </v-app-bar>
       <v-main>
         <div id="main">
@@ -43,10 +41,12 @@
             <router-view @importFiles="importFiles" @exportFiles="exportFiles" :platforms="platforms"
               :datesList="datesList" @updatePlatformInfo="updatePlatformInfo"
               @getDatesByPlatformInfo="getDatesByPlatformInfo" @getTimesByDates="getTimesByDates" :timesList="timesList"
-              @getTotal="getTotal"></router-view>
+              @getTotal="getTotal" :progressTotal="progressTotal"></router-view>
           </div>
         </div>
+
       </v-main>
+
 
     </v-layout>
   </v-card>
@@ -61,7 +61,6 @@ import ExportFiles from "./components/ExportFiles.vue";
 import ImportFiles from "./components/ImportFiles.vue";
 import { UavDataService } from "./Logic/UavData/UavDataService";
 import { uploadState, actionStatus } from "./Logic/services/enums";
-import { unionBy } from "lodash"
 import { ipcRenderer } from "electron";
 import { appSettings } from './models/appSettings';
 import ActionSelector from "./components/ActionSelector.vue";
@@ -69,14 +68,11 @@ import { UsbDevice } from "./models/usbDevice";
 import { useRouter } from 'vue-router';
 // import router from "@/router";
 import { BaseUavDataModel } from "./Logic/UavData/models/baseUavDataModel";
-import Sidebar from "./components/Sidebar.vue";
-import { cwd } from "process";
-import { log } from "console";
 
 
 export default {
   name: "App",
-  components: { ProgressBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector, Sidebar },
+  components: { ProgressBar, PlatformInfo, ExportFiles, ImportFiles, ActionSelector },
   setup() {
     const config = ref<appSettings>();
     config.value = ipcRenderer.sendSync("getConfig");
@@ -183,35 +179,30 @@ export default {
         platform,
         tailNumber
       }
-      await uavDataService.importData(sourceFolder, importUavData, extensionsConfig);
+      progressCurrent.value = await uavDataService.importData(sourceFolder, importUavData, extensionsConfig);
+      console.log(progressCurrent.value);
+
     }
 
     function getTotal() {
       progressTotal.value = ipcRenderer.sendSync("totalFiles", sourceFolder);
+      console.log(progressTotal.value);
+
     }
+
     function exportFiles(date: string, time: string) {
-      // let destFolder = connectedUsb.value.path;
-      // let platform = selectedPlatform.value;
-      // let tailNumber = selectedTailNumber.value;
-
-      // let exportUavData: BaseUavDataModel = { destFolder, date, time, platform, tailNumber }
-      // uavDataService.exportData(localRootFolder, exportUavData, extensionsConfig);
-
       console.log(connectedUsb.value.path);
 
       uavDataService.exportData(localRootFolder, connectedUsb.value.path, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
 
     }
     return {
-      selectedFiles,
       progressTotal,
       progressCurrent,
       statusSummary,
-      uploadStatus,
       platforms,
       platformInfoComponent,
       updatePlatformInfo,
-      reset,
       importFiles,
       externalDrivePath,
       extensionsConfig,
@@ -220,7 +211,7 @@ export default {
       connectedUsb,
       exportFiles,
       getTimesByDates,
-      getDatesByPlatformInfo, getTotal
+      getDatesByPlatformInfo, getTotal, router
     };
   },
 };
@@ -241,7 +232,8 @@ export default {
 }
 
 #appBar {
-  background-color: rgb(38, 79, 80);
+  /* background-color: rgb(7, 84, 105); */
+  background-color: #2196F3;
   height: 40px;
   margin: auto;
   font-size: medium;
@@ -288,5 +280,13 @@ export default {
   height: 36px;
   line-height: 36px;
   vertical-align: middle;
+}
+
+#progressCard {
+  width: 400px;
+  margin-right: 0.3%;
+  height: 30px;
+  margin-left: 3%;
+  margin-bottom: 2%;
 }
 </style>

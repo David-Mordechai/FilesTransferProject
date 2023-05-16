@@ -17,17 +17,20 @@
 <script lang="ts">
 import { ref, watch } from 'vue'
 import PlatformInfo from './PlatformInfo.vue';
+import ProgressBar from './ProgressBar.vue';
 export default {
     name: `ImportFiles`,
     props: ['platforms', 'updatePlatformInfo', 'importFiles', 'exportFiles', 'getDatesByPlatformInfo', 'datesList', 'timesList'],
     emits: ['updatePlatformInfo', 'getDatesByPlatformInfo', "importFiles", 'exportFiles', 'getTimesByDates', 'getTotal'],
-    components: { PlatformInfo },
+    components: { PlatformInfo, ProgressBar },
 
     setup(props, context) {
 
         const date = ref();
         const time = ref();
 
+        const progressCurrent = ref();
+        const statusSummary = ref();
         function importFiles() {
             context.emit("getTotal");
             context.emit("importFiles", date.value, time.value);
@@ -37,7 +40,7 @@ export default {
             context.emit("updatePlatformInfo", platform, tailNumber);
         }
 
-        return { PlatformInfo, date, time, importFiles, updatePlatformInfo }
+        return { PlatformInfo, date, time, importFiles, updatePlatformInfo, statusSummary }
 
     }
 }

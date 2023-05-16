@@ -61,12 +61,24 @@ export const addListeners = async (
   });
 
   ipcMain.on("totalFiles", (event, path) => {
-    fs.readdir(path, function (error, files) {
-      var totalFiles = files.length;
-      event.returnValue = totalFiles;
-    });
+    let fileList: string[] = [];
+
+    const files = getFiles(path, fileList);
+    event.returnValue = files.length;
   });
 
+  function getFiles(filesPath, fileList): string[] {
+    const files = fs.readdirSync(filesPath);
+    for (const file of files) {
+      const p = path.join(filesPath, file);
+      if (fs.statSync(p).isDirectory()) {
+        getFiles(p, fileList);
+      } else {
+        fileList.push(file);
+      }
+    }
+    return fileList;
+  }
   ipcMain.on("getDatesByPlatformInfo", (event, platform, tailNumber) => {
     const folderName = `${platform}-${tailNumber}`;
 
@@ -89,6 +101,7 @@ export const addListeners = async (
     }
   });
 };
+
 export const removeListeners = () => {
   ipcMain.removeAllListeners();
   mainWin.removeAllListeners();

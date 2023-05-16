@@ -5,8 +5,9 @@ import { IGetFilesTask } from "./tasks/interfaces/IGetFilesTask";
 import { IFilterFilesByExtensionTask } from "./tasks/interfaces/IFilterFilesByExtensionTask";
 import { ICopyFilesToInProgressFolderTask } from "./tasks/interfaces/ICopyFilesToInProgressFolderTask";
 import { BaseUavDataModel } from "../models/baseUavDataModel";
+import { EventEmitter } from "events";
 
-export class ImportUavDataWorkflow {
+export class ImportUavDataWorkflow extends EventEmitter {
   public constructor(
     private createFoldersByPlatformInfoTask: ICreateFoldersByPlatformInfoTask,
     private copyFilesToBackupFolderTask: ICopyFilesToBackupFolderTask,
@@ -14,13 +15,16 @@ export class ImportUavDataWorkflow {
     private getFilesTask: IGetFilesTask,
     private filterFilesByExtensionTask: IFilterFilesByExtensionTask,
     private copyFilesToInProgressFolderTask: ICopyFilesToInProgressFolderTask
-  ) {}
+  ) {
+    super();
+  }
 
   public async execute(
     sourceFolder: string,
     baseUavDataModel: BaseUavDataModel,
     extensionsConfig: Array<string>
   ) {
+    let fileCounter = 0;
     let backupFolder =
       this.createFoldersByPlatformInfoTask.create(baseUavDataModel);
 
@@ -39,11 +43,14 @@ export class ImportUavDataWorkflow {
         file
       );
 
+      fileCounter = fileCounter + 1;
+
       this.copyFilesToInProgressFolderTask.copy(
         finalName,
         baseUavDataModel.destFolder,
         file
       );
+      this.emit("filesCounter", { fileCounter: fileCounter });
     });
   }
 }

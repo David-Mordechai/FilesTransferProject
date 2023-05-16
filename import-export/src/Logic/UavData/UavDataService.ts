@@ -1,5 +1,4 @@
 import { ImportUavDataWorkflow } from "../UavData/workflows/ImportUavDataWorkflow";
-import { ExportUavDataWorkFlow } from "../UavData/workflows/ExportUavDataWorkFlow";
 import { CreateFoldersByPlatformInfoTask } from "../UavData/workflows/tasks/CreateFoldersByPlatformInfoTask";
 import { CopyFilesToBackupFolderTask } from "../UavData/workflows/tasks/CopyFilesToBackupFolderTask";
 import { CopyFilesToInProgressFolderTask } from "../UavData/workflows/tasks/CopyFilesToInProgressFolderTask";
@@ -7,12 +6,12 @@ import { StructureNameInProgressFilesTask } from "../UavData/workflows/tasks/Str
 import { FilterFilesByExtensionTask } from "../UavData/workflows/tasks/FilterFilesByExtensionTask";
 import { GetFilesTask } from "../UavData/workflows/tasks/GetFilesTask";
 import { CopyFilesToUsbTask } from "../UavData/workflows/tasks/CopyFilesToUsbTask";
-import { ipcRenderer } from "electron";
 import { BaseUavDataModel } from "../UavData/models/baseUavDataModel";
+import { ExportUavDataWorkFlow } from "./workflows/ExportUavDataWorkflow";
+import { count } from "console";
 
 export class UavDataService {
   constructor() {}
-
   public exportData(
     sourceFolder: string,
     usbFolder: string,
@@ -38,7 +37,8 @@ export class UavDataService {
     sourceFolder: string,
     uavData: BaseUavDataModel,
     extensionsConfig: Array<string>
-  ) {
+  ): Promise<number> {
+    let counter = 0;
     let ImportWorkflow = new ImportUavDataWorkflow(
       new CreateFoldersByPlatformInfoTask(),
       new CopyFilesToBackupFolderTask(),
@@ -47,8 +47,13 @@ export class UavDataService {
       new FilterFilesByExtensionTask(),
       new CopyFilesToInProgressFolderTask()
     );
+    ImportWorkflow.on("filesCounter", (x) => {
+      console.log(x.fileCounter);
+      counter = x.fileCounter;
+    });
     if (sourceFolder.trim().length !== 0) {
       await ImportWorkflow.execute(sourceFolder, uavData, extensionsConfig);
     }
+    return counter;
   }
 }
