@@ -25,7 +25,7 @@
             <h3>External storage device attached {{ connectedUsb.label }}</h3>
           </div>
         </div>
-        <v-card color="primary" id="progressCard">
+        <v-card color="secondary" id="progressCard">
           <div class="status-bar">
             <div class="status-summary">{{ statusSummary }}</div>
             <ProgressBar class="status-progressBar" :total="progressTotal" :current="progressCurrent" />
@@ -193,7 +193,7 @@ export default {
     function exportFiles(date: string, time: string) {
       console.log(connectedUsb.value.path);
 
-      uavDataService.exportData(localRootFolder, connectedUsb.value.path, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
+      progressCurrent.value = uavDataService.exportData(localRootFolder, connectedUsb.value.path, selectedPlatform.value, selectedTailNumber.value, date, time, extensionsConfig);
 
     }
     return {
@@ -232,8 +232,8 @@ export default {
 }
 
 #appBar {
-  /* background-color: rgb(7, 84, 105); */
-  background-color: #2196F3;
+  background-color: rgb(7, 84, 105);
+  /* background-color: #2196F3; */
   height: 40px;
   margin: auto;
   font-size: medium;

@@ -20,10 +20,15 @@ export class UavDataService {
     date: string,
     time: string,
     extensionsConfig: Array<string>
-  ) {
+  ): Promise<number> {
+    let counter = 0;
     let exportDataWorkflow = new ExportUavDataWorkFlow(
       new CopyFilesToUsbTask()
     );
+
+    exportDataWorkflow.on("filesCounter", (x) => {
+      counter = x.fileCounter;
+    });
     exportDataWorkflow.execute(
       sourceFolder,
       platform,
@@ -32,6 +37,8 @@ export class UavDataService {
       time,
       usbFolder
     );
+
+    return counter;
   }
   public async importData(
     sourceFolder: string,
@@ -48,7 +55,6 @@ export class UavDataService {
       new CopyFilesToInProgressFolderTask()
     );
     ImportWorkflow.on("filesCounter", (x) => {
-      console.log(x.fileCounter);
       counter = x.fileCounter;
     });
     if (sourceFolder.trim().length !== 0) {

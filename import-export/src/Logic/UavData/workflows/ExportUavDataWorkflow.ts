@@ -11,9 +11,10 @@ export class ExportUavDataWorkFlow {
     time: string,
     usbFolder: string
   ) {
+    let fileCounter = 0;
     const path = `${sourceFolder}backup\\${platform}-${tailNumber}\\${date}\\${time}`;
     console.log(path);
-
-    this.copyFilesToUsbTask.copy(path, usbFolder);
+    fileCounter = fileCounter + 1;
+    const files = this.copyFilesToUsbTask.copy(path, usbFolder);
   }
 }
